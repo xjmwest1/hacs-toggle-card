@@ -1,7 +1,6 @@
 import '@src/toggle-row-card';
 import type { MockHass } from '@fixtures/hass-base';
 import type { ToggleRowCardConfig } from '@src/types';
-import { config, hass } from '@fixtures/scenes/default-on';
 
 interface SceneModule {
   config: ToggleRowCardConfig;
@@ -9,8 +8,13 @@ interface SceneModule {
 }
 
 const scenes: Record<string, () => Promise<SceneModule>> = {
-  'default-on': async () => ({ config, hass }),
-  loading: async () => ({ config }),
+  'default-on': async () => import('@fixtures/scenes/default-on'),
+  'default-off': async () => import('@fixtures/scenes/default-off'),
+  unavailable: async () => import('@fixtures/scenes/unavailable'),
+  loading: async () => {
+    const { config } = await import('@fixtures/scenes/default-on');
+    return { config };
+  },
 };
 
 async function mountScene(sceneId: string): Promise<void> {

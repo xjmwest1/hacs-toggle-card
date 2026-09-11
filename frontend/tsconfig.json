@@ -16,5 +16,5 @@
       "@fixtures/*": ["./fixtures/*"]
     }
   },
-  "include": ["src", "fixtures", "playground"]
+  "include": ["src", "fixtures", "playground", "scripts"]
 }
