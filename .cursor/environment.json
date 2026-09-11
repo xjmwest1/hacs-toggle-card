@@ -1,0 +1,3 @@
+{
+  "install": "if [ -f frontend/package.json ]; then cd frontend && npm ci && npx playwright install chromium; else echo 'Planning phase — frontend not scaffolded yet'; fi"
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.js.map
+.DS_Store
+.env
+.env.*
+artifacts/screenshots/*.png
+artifacts/screenshots/*.webp
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
