@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toggle Row Card Playground</title>
+    <style>
+      :root {
+        --primary-color: #03a9f4;
+        --card-background-color: #ffffff;
+        --primary-text-color: rgba(0, 0, 0, 0.87);
+        --secondary-text-color: rgba(0, 0, 0, 0.54);
+        --divider-color: rgba(0, 0, 0, 0.12);
+        --disabled-color: rgba(0, 0, 0, 0.26);
+        --state-icon-color: #ffa000;
+        --text-primary-color: #ffffff;
+        --error-color: #f44336;
+        font-family: Roboto, system-ui, sans-serif;
+        background: #f5f5f5;
+        color: var(--primary-text-color);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      .playground {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+
+      .playground__header {
+        margin-bottom: 16px;
+      }
+
+      .playground__header h1 {
+        margin: 0 0 4px;
+        font-size: 1.25rem;
+        font-weight: 500;
+      }
+
+      .playground__header p {
+        margin: 0;
+        color: var(--secondary-text-color);
+        font-size: 0.875rem;
+      }
+
+      ha-card {
+        display: block;
+        background: var(--card-background-color);
+        border-radius: 12px;
+        box-shadow:
+          0 2px 1px -1px rgba(0, 0, 0, 0.2),
+          0 1px 1px 0 rgba(0, 0, 0, 0.14),
+          0 1px 3px 0 rgba(0, 0, 0, 0.12);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="playground">
+      <header class="playground__header">
+        <h1>Toggle Row Card</h1>
+        <p id="scene-label">Scene: default-on</p>
+      </header>
+      <div id="card-host"></div>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

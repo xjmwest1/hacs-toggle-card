@@ -307,10 +307,10 @@ Adjust based on final HACS category (integration vs plugin).
 
 ### Phase 1 — Card scaffold
 
-- Fork/adapt [custom-cards/boilerplate-card](https://github.com/custom-cards/boilerplate-card)
-- Rename to `toggle-row-card` element
-- Implement basic single-row toggle render
-- Vite build → `dist/toggle-row-card.js`
+- [x] Fork/adapt [custom-cards/boilerplate-card](https://github.com/custom-cards/boilerplate-card)
+- [x] Rename to `toggle-row-card` element
+- [x] Implement basic single-row toggle render
+- [x] Vite build → `dist/toggle-row-card.js`
 
 ### Phase 2 — Playground + screenshots
 
@@ -348,6 +348,8 @@ Adjust based on final HACS category (integration vs plugin).
 | 2026-09-11 | Vite playground for PR screenshots | UI-focused; 10× faster than full HA for agents |
 | 2026-09-11 | Full HA smoke release-only | Cost/speed vs coverage tradeoff |
 | 2026-09-11 | Based on boilerplate-card | Production patterns: Lit 3, editor, loading state |
+| 2026-09-11 | Pure Lovelace plugin (no Python) | Card only toggles existing entities; Python deferred |
+| 2026-09-11 | Toggle-only row interaction | Tap/hold actions deferred to later phase |
 
 ### Open questions
 

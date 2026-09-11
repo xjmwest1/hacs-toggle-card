@@ -1,0 +1,22 @@
+{
+  "name": "toggle-row-card",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Home Assistant Lovelace toggle-row card",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "custom-card-helpers": "^2.0.0",
+    "home-assistant-js-websocket": "^9.6.0",
+    "lit": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.9.3",
+    "vite": "^6.2.0"
+  }
+}

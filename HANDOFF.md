@@ -4,7 +4,7 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Planning is complete. Implementation has **not** started. See [PLAN.md](./PLAN.md) for architecture, repo layout, screenshot workflow, and phased roadmap.
+Phase 1 scaffold is complete. See [PLAN.md](./PLAN.md) for architecture, repo layout, screenshot workflow, and phased roadmap.
 
 ### Decisions already made
 
@@ -14,15 +14,15 @@ Planning is complete. Implementation has **not** started. See [PLAN.md](./PLAN.m
 - Full HA smoke tests **release-only**
 - Scaffold from [custom-cards/boilerplate-card](https://github.com/custom-cards/boilerplate-card)
 
-### Open questions (resolve in Phase 1)
+### Resolved in Phase 1
 
-1. HACS category: pure Lovelace plugin vs Python integration wrapper?
-2. Row interactions: toggle only, or tap/hold actions?
-3. Commit screenshot baselines in repo, or artifacts-only per PR?
+1. **HACS category:** Pure Lovelace plugin (no Python integration wrapper for now)
+2. **Row interactions:** Toggle only (tap/hold actions deferred)
+3. **Screenshot baselines:** Artifacts-only per PR (Phase 2)
 
-## Suggested first task for the new agent
+## Suggested next task
 
-> Read PLAN.md and HANDOFF.md, then implement **Phase 1 — Card scaffold**: fork boilerplate-card patterns, create `frontend/`, rename to `toggle-row-card`, and get `npm run dev` working with a single toggle-row scene.
+> Implement **Phase 2 — Playground + screenshots**: fixture scenes, scene router, `npm run screenshots`, and Playwright capture to `artifacts/screenshots/`.
 
 ## Branch naming
 
