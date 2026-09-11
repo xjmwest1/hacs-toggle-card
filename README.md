@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Toggle Row Card
 
 A compact Home Assistant Lovelace card that displays entities as toggle rows — ideal for switches, booleans, and other on/off controls.
@@ -24,3 +25,6 @@ npm run screenshots  # PR artifacts → ../artifacts/screenshots/
 ## License
 
 TBD
+=======
+# hacs-toggle-card
+>>>>>>> c524f06e07c03a6fffc5e7fdebe5ee9eb96c8af5
