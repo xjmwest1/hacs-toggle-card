@@ -35,8 +35,8 @@ async function main(): Promise<void> {
     await page.waitForSelector('toggle-row-card', { timeout: 10_000 });
     await page.waitForTimeout(300);
 
-    const card = page.locator('#card-host');
-    await card.screenshot({
+    const frame = page.locator('#screenshot-frame');
+    await frame.screenshot({
       path: resolve(outputDir, `${scene}.png`),
     });
 

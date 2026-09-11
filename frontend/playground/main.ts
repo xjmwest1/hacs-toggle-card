@@ -1,5 +1,6 @@
 import '@src/toggle-row-card';
 import type { MockHass } from '@fixtures/hass-base';
+import { getSceneLabel } from '@fixtures/scene-labels';
 import type { ToggleRowCardConfig } from '@src/types';
 
 interface SceneModule {
@@ -22,6 +23,7 @@ async function mountScene(sceneId: string): Promise<void> {
   const scene = await loader();
   const host = document.querySelector('#card-host');
   const label = document.querySelector('#scene-label');
+  const stateLabel = document.querySelector('#scene-state-label');
 
   if (!host) {
     throw new Error('Missing #card-host element');
@@ -29,6 +31,10 @@ async function mountScene(sceneId: string): Promise<void> {
 
   if (label) {
     label.textContent = `Scene: ${sceneId}`;
+  }
+
+  if (stateLabel) {
+    stateLabel.textContent = getSceneLabel(sceneId);
   }
 
   const card = document.createElement('toggle-row-card');

@@ -47,6 +47,26 @@
         font-size: 0.875rem;
       }
 
+      .screenshot-frame {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .scene-state-label {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(3, 169, 244, 0.12);
+        color: #0277bd;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
       ha-card {
         display: block;
         background: var(--card-background-color);
@@ -64,7 +84,10 @@
         <h1>Toggle Row Card</h1>
         <p id="scene-label">Scene: default-on</p>
       </header>
-      <div id="card-host"></div>
+      <div id="screenshot-frame" class="screenshot-frame">
+        <span id="scene-state-label" class="scene-state-label">Switch on</span>
+        <div id="card-host"></div>
+      </div>
     </div>
     <script type="module" src="./main.ts"></script>
   </body>
