@@ -8,7 +8,14 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const frontendDir = resolve(__dirname, '..');
 const outputDir = resolve(frontendDir, '../artifacts/screenshots');
 
-const scenes = ['default-on', 'default-off', 'loading', 'unavailable'] as const;
+const scenes = [
+  'default-on',
+  'default-off',
+  'loading',
+  'unavailable',
+  'row-with-buttons',
+  'row-disabled',
+] as const;
 
 async function main(): Promise<void> {
   mkdirSync(outputDir, { recursive: true });

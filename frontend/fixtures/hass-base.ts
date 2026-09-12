@@ -33,6 +33,28 @@ export function createSwitchEntity(
   };
 }
 
+export function createInputBooleanEntity(
+  entityId: string,
+  state: 'on' | 'off',
+  friendlyName?: string,
+): HassEntity {
+  return {
+    entity_id: entityId,
+    state,
+    attributes: {
+      friendly_name: friendlyName ?? entityId,
+      icon: 'mdi:account-multiple',
+    },
+    last_changed: '2026-09-11T12:00:00.000Z',
+    last_updated: '2026-09-11T12:00:00.000Z',
+    context: {
+      id: 'mock',
+      parent_id: null,
+      user_id: null,
+    },
+  };
+}
+
 export function createMockHass(
   entities: Record<string, HassEntity>,
   onCallService?: (
@@ -64,5 +86,12 @@ export function createMockHass(
         };
       }
     },
+  };
+}
+
+export function cloneMockHass(hass: MockHass): MockHass {
+  return {
+    ...hass,
+    states: { ...hass.states },
   };
 }

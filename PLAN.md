@@ -493,16 +493,16 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Labeled screenshot frames
 - [ ] Additional scenes for row-component states (buttons, disabled row, templates)
 
-### Phase 3 — Reusable row component
+### Phase 3 — Reusable row component ✅
 
-- Extract `toggle-row` Lit element from current card
-- Template-string evaluation for `title` and `subtitle`
-- `row-button` sub-component (title, icon, or both; any `ActionConfig`)
-- `row-toggle` sub-component (boolean entity binding)
-- `disables_row` behavior — toggle off disables all row buttons
-- Left/right alignment groups for controls
-- Refactor card to render `rows[]` using `toggle-row`
-- Vitest: template eval, disable logic, control normalization
+- [x] Extract `toggle-row` Lit element from current card
+- [x] Template-string evaluation for `title` and `subtitle`
+- [x] `row-button` sub-component (title, icon, or both; any `ActionConfig`)
+- [x] `row-toggle` sub-component (boolean entity binding)
+- [x] `disables_row` behavior — toggle off disables all row buttons
+- [x] Left/right alignment groups for controls
+- [x] Refactor card to render `rows[]` using `toggle-row`
+- [ ] Vitest: template eval, disable logic, control normalization
 
 ### Phase 4 — Multi-row polish + editor
 

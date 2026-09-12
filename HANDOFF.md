@@ -4,7 +4,7 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Phase 1 scaffold and partial Phase 2 (screenshots) are complete. The plan now defines a **reusable row component architecture**. See [PLAN.md](./PLAN.md) for full details.
+Phase 3 (reusable row component) is complete. See [PLAN.md](./PLAN.md) for architecture and remaining phases.
 
 ### Decisions already made
 
@@ -12,19 +12,12 @@ Phase 1 scaffold and partial Phase 2 (screenshots) are complete. The plan now de
 - UI-focused Lovelace card built from composable `toggle-row` elements
 - Fast PR screenshots via **Vite playground + Playwright** (no full HA Docker per PR)
 - Full HA smoke tests **release-only**
-- Scaffold from [custom-cards/boilerplate-card](https://github.com/custom-cards/boilerplate-card)
 - **HACS category:** Pure Lovelace plugin (no Python wrapper for now)
 - **Screenshot baselines:** Artifacts-only per PR
 
-### Row component model (2026-09-12)
+### Row component model
 
-Each row has:
-
-- **Title** and **subtitle** — template strings evaluated against `hass`
-- **Icon**
-- **Controls** — any number of sub-components, each `align: left | right`
-
-Sub-components (v1):
+Each row has templated title/subtitle, icon, and left/right-aligned controls:
 
 | Type | Behavior |
 |------|----------|
@@ -33,7 +26,7 @@ Sub-components (v1):
 
 ## Suggested next task
 
-> Implement **Phase 3 — Reusable row component**: extract `toggle-row`, add `row-button` and `row-toggle` sub-components, template evaluation for title/subtitle, and `disables_row` behavior. Refactor the card to render `rows[]`.
+> Implement **Phase 4 — Multi-row polish + editor**: visual editor with row/control repeaters, `getStubConfig()`, and dark theme scene. Add Vitest coverage for template eval and disable logic.
 
 ## Branch naming
 

@@ -9,13 +9,32 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:lightbulb',
       entity: entityId,
-      title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]",
-      subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]",
+      title: 'Porch Light',
+      subtitle: 'On',
       controls: [
+        {
+          type: 'button',
+          align: 'left',
+          icon: 'mdi:information-outline',
+          tap_action: {
+            action: 'more-info',
+            entity: entityId,
+          },
+        },
         {
           type: 'toggle',
           align: 'right',
           entity: entityId,
+        },
+        {
+          type: 'button',
+          align: 'right',
+          title: 'Run',
+          icon: 'mdi:play',
+          tap_action: {
+            action: 'call-service',
+            service: 'script.porch_scene',
+          },
         },
       ],
     },

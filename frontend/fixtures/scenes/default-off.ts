@@ -5,7 +5,21 @@ const entityId = 'switch.porch';
 
 export const config: ToggleRowCardConfig = {
   type: 'custom:toggle-row-card',
-  entity: entityId,
+  rows: [
+    {
+      icon: 'mdi:lightbulb',
+      entity: entityId,
+      title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]",
+      subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]",
+      controls: [
+        {
+          type: 'toggle',
+          align: 'right',
+          entity: entityId,
+        },
+      ],
+    },
+  ],
 };
 
 export const hass = createMockHass({

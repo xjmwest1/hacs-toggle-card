@@ -1,22 +1,36 @@
 # Toggle Row Card
 
-A compact Home Assistant Lovelace card built from reusable **row components** — each row has a templated title/subtitle, icon, and composable controls (buttons and toggles).
+A Home Assistant Lovelace card built from reusable **row components** — each row has a templated title/subtitle, icon, and composable controls (buttons and toggles).
 
-> **Status:** Phase 1 scaffold complete; row component architecture defined in [PLAN.md](./PLAN.md).
+> **Status:** Reusable row component implemented — see [PLAN.md](./PLAN.md).
 
-## Planned row model
+## Row model
 
 - **Title / subtitle** — template strings evaluated against `hass`
-- **Icon** — static MDI or entity-derived
+- **Icon** — static MDI icon or entity-derived
 - **Controls** — left- or right-aligned sub-components:
   - **Button** — title, icon, or both; performs any HA action
-  - **Toggle** — boolean value; optionally disables all row buttons when off
+  - **Toggle** — boolean value; optionally disables all row buttons when off (`disables_row`)
 
-## Features (current)
+## Example config
 
-- Single-entity toggle row with theme-aware styling (to be refactored into row component)
-- Loading skeleton before `hass` is attached
-- Vite playground with Playwright screenshot capture
+```yaml
+type: custom:toggle-row-card
+rows:
+  - icon: mdi:lightbulb
+    title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]"
+    subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]"
+    controls:
+      - type: button
+        align: left
+        icon: mdi:information-outline
+        tap_action:
+          action: more-info
+          entity: switch.porch
+      - type: toggle
+        align: right
+        entity: switch.porch
+```
 
 ## Development
 
@@ -25,14 +39,19 @@ cd frontend
 npm ci
 npm run dev          # playground at http://localhost:5173
 npm run build        # → frontend/dist/toggle-row-card.js
+npm run screenshots  # → ../artifacts/screenshots/
 ```
 
 ### Playground scenes
 
 | Scene | URL |
 |-------|-----|
-| Default (switch on) | `http://localhost:5173/?scene=default-on` |
-| Loading skeleton | `http://localhost:5173/?scene=loading` |
+| Switch on | `/?scene=default-on` |
+| Switch off | `/?scene=default-off` |
+| Row with buttons | `/?scene=row-with-buttons` |
+| Row disabled | `/?scene=row-disabled` |
+| Unavailable | `/?scene=unavailable` |
+| Loading | `/?scene=loading` |
 
 ## License
 
