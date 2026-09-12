@@ -5,7 +5,7 @@ import './row-button';
 import './row-toggle';
 import {
   getMdiPath,
-  isEntityOn,
+  isRowDisabled,
   partitionControls,
 } from '../helpers';
 import { rowStyles } from '../styles';
@@ -29,7 +29,7 @@ export class ToggleRow extends LitElement {
           ? { value: this.config.subtitle }
           : null;
 
-    const rowDisabled = this._isRowDisabled();
+    const rowDisabled = isRowDisabled(this.config.controls ?? [], this.hass);
     const { left, right } = partitionControls(this.config.controls ?? []);
     const icon = this.config.icon;
 
@@ -71,21 +71,6 @@ export class ToggleRow extends LitElement {
           `
         : nothing}
     `;
-  }
-
-  private _isRowDisabled(): boolean {
-    if (!this.hass) {
-      return false;
-    }
-
-    return (this.config.controls ?? []).some((control) => {
-      if (control.type !== 'toggle' || !control.disables_row) {
-        return false;
-      }
-
-      const stateObj = this.hass.states[control.entity];
-      return stateObj ? !isEntityOn(stateObj) : false;
-    });
   }
 
   private _renderIcon(icon: string): TemplateResult {

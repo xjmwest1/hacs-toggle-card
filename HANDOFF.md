@@ -4,7 +4,7 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Phase 4 (visual editor + dark theme scene) is complete. See [PLAN.md](./PLAN.md) for remaining phases.
+Phase 5 (HACS packaging) is in progress. See [PLAN.md](./PLAN.md) for remaining phases.
 
 ### Decisions already made
 
@@ -26,8 +26,8 @@ Each row has templated title/subtitle, icon, and left/right-aligned controls:
 
 ## Suggested next task
 
-> Implement **Phase 5 — HACS packaging**: finalize `hacs.json`, README install docs, brand assets, first GitHub release, and manual install verification in HA. Add Vitest coverage for template eval and disable logic (Phase 4 remainder / Phase 6).
+> Complete **Phase 5 — HACS packaging**: tag and publish `v0.1.0` release, verify manual install in HA. Then start **Phase 6 — Polish & release gate** (config edge-case Vitest, optional HA smoke workflow).
 
 ## Branch naming
 
-`cursor/<descriptive-name>-83ae`
+`cursor/<descriptive-name>-bbf6`
