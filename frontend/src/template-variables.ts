@@ -26,8 +26,15 @@ export function getRowToggleEntities(row: ToggleRowConfig): string[] {
   ];
 }
 
+export function getRowEntitySources(row: ToggleRowConfig): string[] {
+  const toggleEntities = getRowToggleEntities(row);
+  const sources = row.entity ? [row.entity, ...toggleEntities] : toggleEntities;
+
+  return [...new Set(sources)];
+}
+
 export function getTemplateVariables(row: ToggleRowConfig): TemplateVariable[] {
-  const entityIds = getRowToggleEntities(row);
+  const entityIds = getRowEntitySources(row);
   const sources = entityIds.length > 0 ? entityIds : [EXAMPLE_ENTITY];
 
   return sources.flatMap((entityId) =>

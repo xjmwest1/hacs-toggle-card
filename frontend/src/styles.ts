@@ -125,7 +125,25 @@ export const rowStyles: CSSResultGroup = [
       flex-shrink: 0;
       width: 24px;
       height: 24px;
+      color: var(--toggle-row-accent);
+    }
+
+    .row-icon--active {
       color: var(--state-icon-color, var(--toggle-row-accent));
+    }
+
+    .row-icon--inactive {
+      color: var(
+        --state-inactive-icon-color,
+        var(--disabled-text-color, var(--toggle-row-secondary-text))
+      );
+    }
+
+    .row-icon--unavailable {
+      color: var(
+        --state-unavailable-color,
+        var(--disabled-text-color, var(--toggle-row-secondary-text))
+      );
     }
 
     .row-icon svg {

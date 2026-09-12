@@ -8,6 +8,7 @@ export const config: ToggleRowCardConfig = {
   rows: [
     {
       icon: 'mdi:lightbulb',
+      entity: entityId,
       title: 'Porch Light',
       subtitle: 'On',
       controls: [
@@ -29,6 +30,7 @@ export const config: ToggleRowCardConfig = {
     },
     {
       icon: 'mdi:account-multiple',
+      entity: 'input_boolean.guest_mode',
       title: 'Guest Mode',
       subtitle: 'Off',
       controls: [

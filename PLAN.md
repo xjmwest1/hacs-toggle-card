@@ -179,7 +179,8 @@ Each row is a horizontal strip:
 ```
 
 - **Title** and **subtitle** are static strings with `{{ variable }}` placeholders resolved against `hass` (no JavaScript)
-- **Icon** is a static MDI icon
+- **Entity** (optional) is the row subject — drives icon fallback, optional state tinting (`icon_state`, default on), and unavailable styling
+- **Icon** is a static MDI icon, or falls back to the row entity's icon
 - **Controls** are rendered in two alignment groups: `left` and `right`
 - When a row is **disabled**, all `button` controls in that row are non-interactive; toggles remain interactive so the user can re-enable the row
 
@@ -287,6 +288,8 @@ interface ToggleRowConfig {
   title: string;
   subtitle?: string;
   icon?: string;
+  entity?: string;
+  icon_state?: boolean;
   controls: RowControlConfig[];
 }
 

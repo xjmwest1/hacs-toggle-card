@@ -5,8 +5,12 @@ import './row-button';
 import './row-toggle';
 import {
   getMdiPath,
+  getRowIconState,
+  isEntityUnavailable,
   isRowDisabled,
   partitionControls,
+  resolveRowIcon,
+  shouldShowIconState,
 } from '../helpers';
 import { rowStyles } from '../styles';
 import { evaluateTemplate } from '../templates';
@@ -29,20 +33,26 @@ export class ToggleRow extends LitElement {
           ? { value: this.config.subtitle }
           : null;
 
+    const contextEntity = this.config.entity
+      ? this.hass?.states[this.config.entity]
+      : undefined;
+    const unavailable = isEntityUnavailable(contextEntity);
     const rowDisabled = isRowDisabled(this.config.controls ?? [], this.hass);
     const { left, right } = partitionControls(this.config.controls ?? []);
-    const icon = this.config.icon;
+    const icon = resolveRowIcon(this.config, contextEntity);
+    const iconState =
+      shouldShowIconState(this.config) ? getRowIconState(contextEntity) : null;
 
     return html`
       <div class="toggle-row ${rowDisabled ? 'toggle-row--disabled' : ''}">
-        ${icon ? this._renderIcon(icon) : ''}
+        ${icon ? this._renderIcon(icon, iconState) : ''}
         <div class="row-text">
-          <div class="row-title">
+          <div class="row-title ${unavailable ? 'row-title--unavailable' : ''}">
             ${titleResult.value}
           </div>
           ${subtitleResult?.value
             ? html`
-                <div class="row-subtitle">
+                <div class="row-subtitle ${unavailable ? 'row-subtitle--unavailable' : ''}">
                   ${subtitleResult.value}
                 </div>
               `
@@ -73,9 +83,14 @@ export class ToggleRow extends LitElement {
     `;
   }
 
-  private _renderIcon(icon: string): TemplateResult {
+  private _renderIcon(
+    icon: string,
+    iconState: ReturnType<typeof getRowIconState>,
+  ): TemplateResult {
+    const stateClass = iconState ? `row-icon--${iconState}` : '';
+
     return html`
-      <div class="row-icon" aria-hidden="true">
+      <div class="row-icon ${stateClass}" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path d=${getMdiPath(icon)}></path>
         </svg>
