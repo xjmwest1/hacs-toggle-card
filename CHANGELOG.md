@@ -4,11 +4,15 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-12
+
 ### Added
 
 - Shared card config validation and normalization (`frontend/src/config.ts`)
 - Vitest coverage for config edge cases (empty rows, invalid controls, card size)
 - Release smoke script (`npm run smoke`) and `release-smoke.yml` workflow on `v*` tags
+- Row entity with optional `icon_state` tinting
+- Editor template autocomplete (suggestions after `{{`), filterable entity picker, and icon picker with previews
 
 ## [0.1.0] - 2026-09-12
 

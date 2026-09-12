@@ -1,7 +1,10 @@
 import { ActionConfig, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { applyRowEntitySelection, getEntityPickerOptions } from './editor-row-entity';
+import './editor/editor-entity-picker';
+import './editor/editor-icon-picker';
+import './editor/editor-template-input';
+import { applyRowEntitySelection } from './editor-row-entity';
 import {
   createSceneTapAction,
   getButtonTapActionType,
@@ -10,10 +13,7 @@ import {
   type ButtonTapActionType,
 } from './editor-scene-picker';
 import { sharedVars } from './styles';
-import {
-  getTemplateVariables,
-  insertTemplateVariable,
-} from './template-variables';
+import { getTemplateVariables } from './template-variables';
 import type {
   RowAlign,
   RowButtonConfig,
@@ -141,21 +141,30 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           </div>
         </div>
 
-        ${this._renderRowEntityField(row, rowIndex)}
+        <label class="field">
+          <span>Entity (optional)</span>
+          <editor-entity-picker
+            .hass=${this.hass}
+            .value=${row.entity ?? ''}
+            placeholder="switch.example"
+            @value-changed=${(ev: CustomEvent<{ value: string }>) =>
+              this._updateRowEntity(rowIndex, ev)}
+          ></editor-entity-picker>
+        </label>
 
         ${this._renderTemplateField(rowIndex, 'title', row.title, row)}
         ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row, true)}
 
         <label class="field">
           <span>Icon (optional)</span>
-          <input
+          <editor-icon-picker
             .value=${row.icon ?? ''}
             placeholder="mdi:lightbulb — falls back to entity icon"
-            @input=${(ev: Event) =>
+            @value-changed=${(ev: CustomEvent<{ value: string }>) =>
               this._updateRow(rowIndex, {
-                icon: (ev.target as HTMLInputElement).value || undefined,
+                icon: ev.detail.value || undefined,
               })}
-          />
+          ></editor-icon-picker>
         </label>
 
         ${row.entity
@@ -189,43 +198,8 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     `;
   }
 
-  private _renderRowEntityField(row: ToggleRowConfig, rowIndex: number): TemplateResult {
-    const entityOptions = getEntityPickerOptions(this.hass);
-
-    if (entityOptions.length === 0) {
-      return html`
-        <label class="field">
-          <span>Entity (optional)</span>
-          <input
-            .value=${row.entity ?? ''}
-            placeholder="switch.example"
-            @input=${(ev: Event) => this._updateRowEntity(rowIndex, ev)}
-          />
-        </label>
-      `;
-    }
-
-    return html`
-      <label class="field">
-        <span>Entity (optional)</span>
-        <select
-          .value=${row.entity ?? ''}
-          @change=${(ev: Event) => this._updateRowEntity(rowIndex, ev)}
-        >
-          <option value="">None</option>
-          ${entityOptions.map(
-            (entityId) => html`
-              <option value=${entityId}>${entityId}</option>
-            `,
-          )}
-        </select>
-      </label>
-    `;
-  }
-
-  private _updateRowEntity(rowIndex: number, ev: Event): void {
-    const target = ev.target as HTMLInputElement | HTMLSelectElement;
-    const entityId = target.value || undefined;
+  private _updateRowEntity(rowIndex: number, ev: CustomEvent<{ value: string }>): void {
+    const entityId = ev.detail.value || undefined;
     const row = this._config.rows[rowIndex];
     const updatedRow = applyRowEntitySelection(row, entityId, this.hass, row.entity);
 
@@ -239,33 +213,24 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     row: ToggleRowConfig,
     optional = false,
   ): TemplateResult {
-    const listId = `${field}-vars-${rowIndex}`;
     const variables = getTemplateVariables(row);
-    const hasEntitySources = getTemplateVariables(row).length > 0;
+    const hasEntitySources = variables.length > 0;
 
     return html`
       <label class="field">
         <span>${field === 'title' ? 'Title' : 'Subtitle (optional)'}</span>
-        <input
+        <editor-template-input
           id=${`${field}-${rowIndex}`}
-          list=${listId}
           .value=${value}
+          .variables=${variables}
           placeholder=${optional
             ? 'Optional, e.g. {{ switch.porch.state_label }}'
             : 'e.g. {{ switch.porch.name }}'}
-          @input=${(ev: Event) => this._updateTemplateField(rowIndex, field, ev)}
-        />
-        <datalist id=${listId}>
-          ${variables.map(
-            (variable) => html`
-              <option value=${this._templateSuggestion(value, variable.token, variable.format)}>
-                ${variable.label}
-              </option>
-            `,
-          )}
-        </datalist>
+          @value-changed=${(ev: CustomEvent<{ value: string }>) =>
+            this._updateTemplateField(rowIndex, field, ev)}
+        ></editor-template-input>
         <div class="template-help">
-          Use entity variables like <code>{{ switch.porch.name }}</code>. Format dates with
+          Type <code>{{</code> for template suggestions. Format dates with
           <code>{{ switch.porch.last_changed | date }}</code>,
           <code>{{ sensor.event.attr.start | datetime:short }}</code>, or relative values like
           <code>{{ switch.porch.last_updated | relative }}</code>.
@@ -275,20 +240,12 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     `;
   }
 
-  private _templateSuggestion(currentValue: string, token: string, format?: string): string {
-    if (!currentValue) {
-      return insertTemplateVariable('', token, undefined, undefined, format).value;
-    }
-
-    return `${currentValue} ${insertTemplateVariable('', token, undefined, undefined, format).value}`.trim();
-  }
-
   private _updateTemplateField(
     rowIndex: number,
     field: 'title' | 'subtitle',
-    ev: Event,
+    ev: CustomEvent<{ value: string }>,
   ): void {
-    const value = (ev.target as HTMLInputElement).value;
+    const value = ev.detail.value;
 
     if (field === 'title') {
       this._updateRow(rowIndex, { title: value });
@@ -389,13 +346,14 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     return html`
       <label class="field">
         <span>Toggle entity</span>
-        <input
+        <editor-entity-picker
+          .hass=${this.hass}
           .value=${control.entity}
-          @input=${(ev: Event) =>
+          @value-changed=${(ev: CustomEvent<{ value: string }>) =>
             this._updateControl(rowIndex, controlIndex, {
-              entity: (ev.target as HTMLInputElement).value,
+              entity: ev.detail.value,
             })}
-        />
+        ></editor-entity-picker>
       </label>
       <label class="checkbox-field">
         <input
@@ -429,14 +387,14 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
       </label>
       <label class="field">
         <span>Button icon (optional)</span>
-        <input
+        <editor-icon-picker
           .value=${control.icon ?? ''}
           placeholder="mdi:information-outline"
-          @input=${(ev: Event) =>
+          @value-changed=${(ev: CustomEvent<{ value: string }>) =>
             this._updateControl(rowIndex, controlIndex, {
-              icon: (ev.target as HTMLInputElement).value || undefined,
+              icon: ev.detail.value || undefined,
             })}
-        />
+        ></editor-icon-picker>
       </label>
       <label class="field">
         <span>Tap action</span>
@@ -454,15 +412,29 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         ? html`
             <label class="field">
               <span>Action entity</span>
-              <input
+              <editor-entity-picker
+                .hass=${this.hass}
                 .value=${control.tap_action && 'entity' in control.tap_action ? control.tap_action.entity : ''}
-                @input=${(ev: Event) => this._updateButtonActionEntity(rowIndex, controlIndex, ev)}
-              />
+                @value-changed=${(ev: CustomEvent<{ value: string }>) =>
+                  this._updateButtonActionEntity(rowIndex, controlIndex, ev)}
+              ></editor-entity-picker>
             </label>
           `
         : nothing}
       ${getButtonTapActionType(control.tap_action) === 'trigger-scene'
-        ? this._renderScenePicker(rowIndex, controlIndex, control)
+        ? html`
+            <label class="field">
+              <span>Scene</span>
+              <editor-entity-picker
+                .hass=${this.hass}
+                domainFilter="scene"
+                .value=${getSceneFromTapAction(control.tap_action)}
+                placeholder="Filter scenes..."
+                @value-changed=${(ev: CustomEvent<{ value: string }>) =>
+                  this._updateButtonScene(rowIndex, controlIndex, ev)}
+              ></editor-entity-picker>
+            </label>
+          `
         : nothing}
       ${getButtonTapActionType(control.tap_action) === 'call-service'
         ? html`
@@ -476,48 +448,6 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             </label>
           `
         : nothing}
-    `;
-  }
-
-  private _renderScenePicker(
-    rowIndex: number,
-    controlIndex: number,
-    control: RowButtonConfig,
-  ): TemplateResult {
-    const sceneOptions = getScenePickerOptions(this.hass);
-    const selectedScene = getSceneFromTapAction(control.tap_action);
-    const listId = `scene-picker-${rowIndex}-${controlIndex}`;
-
-    if (sceneOptions.length === 0) {
-      return html`
-        <label class="field">
-          <span>Scene</span>
-          <input
-            .value=${selectedScene}
-            placeholder="scene.example"
-            @input=${(ev: Event) => this._updateButtonScene(rowIndex, controlIndex, ev)}
-          />
-        </label>
-      `;
-    }
-
-    return html`
-      <label class="field">
-        <span>Scene</span>
-        <input
-          list=${listId}
-          .value=${selectedScene}
-          placeholder="Filter scenes..."
-          @input=${(ev: Event) => this._updateButtonScene(rowIndex, controlIndex, ev)}
-        />
-        <datalist id=${listId}>
-          ${sceneOptions.map(
-            (option) => html`
-              <option value=${option.entityId}>${option.label}</option>
-            `,
-          )}
-        </datalist>
-      </label>
     `;
   }
 
@@ -649,8 +579,8 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     this._notifyConfigChanged();
   }
 
-  private _updateButtonScene(rowIndex: number, controlIndex: number, ev: Event): void {
-    const sceneEntityId = (ev.target as HTMLInputElement).value.trim();
+  private _updateButtonScene(rowIndex: number, controlIndex: number, ev: CustomEvent<{ value: string }>): void {
+    const sceneEntityId = ev.detail.value.trim();
     if (!sceneEntityId) {
       return;
     }
@@ -662,8 +592,12 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     this._notifyConfigChanged();
   }
 
-  private _updateButtonActionEntity(rowIndex: number, controlIndex: number, ev: Event): void {
-    const entity = (ev.target as HTMLInputElement).value;
+  private _updateButtonActionEntity(
+    rowIndex: number,
+    controlIndex: number,
+    ev: CustomEvent<{ value: string }>,
+  ): void {
+    const entity = ev.detail.value;
     const rows = [...this._config.rows];
     const control = rows[rowIndex].controls[controlIndex] as RowButtonConfig;
 
@@ -751,8 +685,15 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
       }
 
       .field input,
-      .field select {
+      .field select,
+      .field editor-entity-picker,
+      .field editor-icon-picker,
+      .field editor-template-input {
         width: 100%;
+      }
+
+      .field input,
+      .field select {
         box-sizing: border-box;
         padding: 8px 10px;
         border: 1px solid var(--toggle-row-divider);
