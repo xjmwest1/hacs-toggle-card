@@ -38,5 +38,11 @@ describe('getTemplateVariables', () => {
     });
 
     expect(variables.some((variable) => variable.token === 'switch.porch.name')).toBe(true);
+    expect(
+      variables.some(
+        (variable) =>
+          variable.token === 'switch.porch.last_changed' && variable.format === 'datetime:short',
+      ),
+    ).toBe(true);
   });
 });

@@ -6,7 +6,6 @@ import { sharedVars } from './styles';
 import {
   getTemplateVariables,
   insertTemplateVariable,
-  type TemplateVariable,
 } from './template-variables';
 import type {
   RowAlign,
@@ -252,47 +251,28 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         <datalist id=${listId}>
           ${variables.map(
             (variable) => html`
-              <option value=${this._templateSuggestion(value, variable.token)}>
+              <option value=${this._templateSuggestion(value, variable.token, variable.format)}>
                 ${variable.label}
               </option>
             `,
           )}
         </datalist>
         <div class="template-help">
-          Use explicit entity variables like <code>{{ switch.porch.name }}</code>. Set a row
-          entity or add a toggle control for insert suggestions.
-          ${hasEntitySources ? nothing : html`<span> No entities on this row yet.</span>`}
-        </div>
-        <div class="var-chips">
-          ${variables.map((variable) => this._renderVariableChip(rowIndex, field, variable))}
+          Use entity variables like <code>{{ switch.porch.name }}</code>. Format dates with
+          <code>{{ switch.porch.last_changed | date }}</code> or
+          <code>{{ sensor.event.attr.start | datetime:short }}</code>.
+          ${hasEntitySources ? nothing : html`<span> Set a row entity for suggestions.</span>`}
         </div>
       </label>
     `;
   }
 
-  private _renderVariableChip(
-    rowIndex: number,
-    field: 'title' | 'subtitle',
-    variable: TemplateVariable,
-  ): TemplateResult {
-    return html`
-      <button
-        class="var-chip"
-        type="button"
-        title=${variable.description}
-        @click=${(ev: Event) => this._insertTemplateVariable(rowIndex, field, variable.token, ev)}
-      >
-        ${variable.label}
-      </button>
-    `;
-  }
-
-  private _templateSuggestion(currentValue: string, token: string): string {
+  private _templateSuggestion(currentValue: string, token: string, format?: string): string {
     if (!currentValue) {
-      return insertTemplateVariable('', token).value;
+      return insertTemplateVariable('', token, undefined, undefined, format).value;
     }
 
-    return `${currentValue} ${insertTemplateVariable('', token).value}`.trim();
+    return `${currentValue} ${insertTemplateVariable('', token, undefined, undefined, format).value}`.trim();
   }
 
   private _updateTemplateField(
@@ -308,38 +288,6 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     }
 
     this._updateRow(rowIndex, { subtitle: value || undefined });
-  }
-
-  private _insertTemplateVariable(
-    rowIndex: number,
-    field: 'title' | 'subtitle',
-    token: string,
-    ev: Event,
-  ): void {
-    const input = (ev.currentTarget as HTMLElement)
-      .closest('.field')
-      ?.querySelector('input') as HTMLInputElement | null;
-    const row = this._config.rows[rowIndex];
-    const currentValue = field === 'title' ? row.title : row.subtitle ?? '';
-    const { value, cursor } = insertTemplateVariable(
-      currentValue,
-      token,
-      input?.selectionStart,
-      input?.selectionEnd,
-    );
-
-    if (field === 'title') {
-      this._updateRow(rowIndex, { title: value });
-    } else {
-      this._updateRow(rowIndex, { subtitle: value || undefined });
-    }
-
-    if (input) {
-      requestAnimationFrame(() => {
-        input.focus();
-        input.setSelectionRange(cursor, cursor);
-      });
-    }
   }
 
   private _renderControlEditor(
@@ -745,28 +693,6 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
       .template-help code {
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         font-size: 0.75rem;
-      }
-
-      .var-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .var-chip {
-        border: 1px solid var(--toggle-row-divider);
-        border-radius: 999px;
-        padding: 4px 10px;
-        background: rgba(3, 169, 244, 0.08);
-        color: var(--toggle-row-accent);
-        cursor: pointer;
-        font: inherit;
-        font-size: 0.75rem;
-      }
-
-      .var-chip:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
       }
     `,
   ];
