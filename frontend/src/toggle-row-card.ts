@@ -2,6 +2,7 @@ import { HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-hel
 import { LitElement, PropertyValues, TemplateResult, html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import './components/toggle-row';
+import { getCardSize, normalizeCardConfig } from './config';
 import { CARD_VERSION } from './const';
 import { cardStyles } from './styles';
 import type { ToggleRowCardConfig } from './types';
@@ -79,17 +80,7 @@ export class ToggleRowCard extends LitElement implements LovelaceCard {
   @state() private config!: ToggleRowCardConfig;
 
   public setConfig(config: ToggleRowCardConfig): void {
-    if (!config?.rows?.length) {
-      throw new Error('You must provide at least one row');
-    }
-
-    for (const row of config.rows) {
-      if (!row.title) {
-        throw new Error('Each row must have a title');
-      }
-    }
-
-    this.config = { ...config };
+    this.config = normalizeCardConfig(config);
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -144,7 +135,7 @@ export class ToggleRowCard extends LitElement implements LovelaceCard {
   }
 
   public getCardSize(): number {
-    return Math.max(1, this.config?.rows?.length ?? 1);
+    return getCardSize(this.config);
   }
 
   static styles = cardStyles;
