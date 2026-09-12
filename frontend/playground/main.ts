@@ -16,6 +16,7 @@ const scenes: Record<string, () => Promise<SceneModule>> = {
   unavailable: async () => import('@fixtures/scenes/unavailable'),
   'row-with-buttons': async () => import('@fixtures/scenes/row-with-buttons'),
   'row-disabled': async () => import('@fixtures/scenes/row-disabled'),
+  'row-disabled-entity-on': async () => import('@fixtures/scenes/row-disabled-entity-on'),
   'multi-row': async () => import('@fixtures/scenes/multi-row'),
   'dark-theme': async () => import('@fixtures/scenes/dark-theme'),
   editor: async () => import('@fixtures/scenes/editor'),

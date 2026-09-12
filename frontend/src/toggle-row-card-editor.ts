@@ -1,6 +1,8 @@
 import { ActionConfig, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import './toggle-row-card';
+import { validateCardConfig } from './config';
 import { sharedVars } from './styles';
 import {
   getTemplateVariables,
@@ -77,6 +79,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
 
     return html`
       <div class="editor">
+        ${this._renderPreview()}
         <div class="editor-section">
           <div class="section-header">
             <h3>Rows</h3>
@@ -86,6 +89,53 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         </div>
       </div>
     `;
+  }
+
+  private _renderPreview(): TemplateResult {
+    if (!this.hass) {
+      return html`
+        <section class="editor-preview">
+          <div class="section-header">
+            <h3>Live preview</h3>
+          </div>
+          <p class="preview-placeholder">Connect Home Assistant to preview the card.</p>
+        </section>
+      `;
+    }
+
+    const previewConfig = this._getPreviewConfig();
+    if (!previewConfig) {
+      return html`
+        <section class="editor-preview">
+          <div class="section-header">
+            <h3>Live preview</h3>
+          </div>
+          <p class="preview-placeholder">
+            Complete each row title and control before previewing.
+          </p>
+        </section>
+      `;
+    }
+
+    return html`
+      <section class="editor-preview">
+        <div class="section-header">
+          <h3>Live preview</h3>
+        </div>
+        <toggle-row-card .hass=${this.hass} .config=${previewConfig}></toggle-row-card>
+      </section>
+    `;
+  }
+
+  private _getPreviewConfig(): ToggleRowCardConfig | null {
+    try {
+      return validateCardConfig({
+        type: 'custom:toggle-row-card',
+        rows: this._config.rows,
+      });
+    } catch {
+      return null;
+    }
   }
 
   private _renderRowEditor(row: ToggleRowConfig, rowIndex: number): TemplateResult {
@@ -601,6 +651,27 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         display: flex;
         flex-direction: column;
         gap: 16px;
+      }
+
+      .editor-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--toggle-row-divider);
+        border-radius: 8px;
+        background: var(--card-background-color, #fff);
+      }
+
+      .preview-placeholder {
+        margin: 0;
+        color: var(--toggle-row-secondary-text);
+        font-size: 0.8125rem;
+      }
+
+      .editor-preview toggle-row-card {
+        display: block;
+        pointer-events: none;
       }
 
       .editor-section,

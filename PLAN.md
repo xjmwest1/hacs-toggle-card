@@ -353,6 +353,7 @@ For a UI-focused card, **playground screenshots are the default**; full HA is re
 | `default-off` | Single row, toggle off |
 | `row-with-buttons` | Row with left + right buttons and toggle |
 | `row-disabled` | Toggle with `disables_row: true` — buttons disabled |
+| `row-disabled-entity-on` | Row entity on; separate `disables_row` toggle off disables buttons |
 | `templated-subtitle` | Title/subtitle template strings resolved |
 | `multi-row` | 3+ rows mixed states |
 | `unavailable` | Entity `unavailable` styling |

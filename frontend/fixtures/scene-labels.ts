@@ -5,6 +5,7 @@ export const sceneLabels: Record<string, string> = {
   unavailable: 'Unavailable',
   'row-with-buttons': 'Row with buttons',
   'row-disabled': 'Row disabled',
+  'row-disabled-entity-on': 'Row disabled, entity on',
   'multi-row': 'Multi-row',
   'dark-theme': 'Dark theme',
   editor: 'Visual editor',

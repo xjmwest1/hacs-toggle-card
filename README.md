@@ -130,6 +130,7 @@ This repository is ready for manual submission to the [HACS default store](https
 | Switch off | `/?scene=default-off` |
 | Row with buttons | `/?scene=row-with-buttons` |
 | Row disabled | `/?scene=row-disabled` |
+| Row disabled, entity on | `/?scene=row-disabled-entity-on` |
 | Multi-row | `/?scene=multi-row` |
 | Dark theme | `/?scene=dark-theme` |
 | Visual editor | `/?scene=editor` |
