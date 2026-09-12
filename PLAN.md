@@ -1,6 +1,6 @@
 # hacs-toggle-card — Project Plan
 
-> **Status:** Phase 1 complete — row component architecture defined  
+> **Status:** Phase 5 complete — ready for Phase 6 polish & release gate  
 > **Last updated:** 2026-09-12  
 > **Repository:** `hacs-toggle-card` on GitHub
 
@@ -475,11 +475,11 @@ Adjust based on final HACS category (integration vs plugin).
 
 ## 9. Implementation phases
 
-### Phase 0 — Repository bootstrap (this plan)
+### Phase 0 — Repository bootstrap ✅
 
 - [x] Create repo with `PLAN.md`, `README.md`, `AGENTS.md`
-- [ ] Add `.cursor/environment.json`
-- [ ] Add CI workflow skeleton
+- [x] Add `.cursor/environment.json`
+- [x] Add CI workflow skeleton
 
 ### Phase 1 — Card scaffold ✅
 
@@ -488,13 +488,13 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Implement basic single-row toggle render (to be refactored in Phase 2)
 - [x] Vite build → `dist/toggle-row-card.js`
 
-### Phase 2 — Playground + screenshots (partial ✅)
+### Phase 2 — Playground + screenshots ✅
 
 - [x] Fixture scenes (on/off/unavailable/loading)
 - [x] Playground scene router
 - [x] `npm run screenshots` → `artifacts/screenshots/`
 - [x] Labeled screenshot frames
-- [ ] Additional scenes for row-component states (buttons, disabled row, templates)
+- [x] Additional scenes for row-component states (buttons, disabled row, templates)
 
 ### Phase 3 — Reusable row component ✅
 
@@ -505,7 +505,7 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] `disables_row` behavior — toggle off disables all row buttons
 - [x] Left/right alignment groups for controls
 - [x] Refactor card to render `rows[]` using `toggle-row`
-- [ ] Vitest: template eval, disable logic, control normalization
+- [x] Vitest: template eval, disable logic, control normalization
 
 ### Phase 4 — Multi-row polish + editor ✅
 
@@ -514,13 +514,14 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Control-type picker (button / toggle), alignment selector
 - [x] `getStubConfig()` for card picker
 - [x] Dark theme scene
-- [ ] Vitest: template eval, disable logic, control normalization
+- [x] Vitest: template eval, disable logic, control normalization
 
-### Phase 5 — HACS packaging
+### Phase 5 — HACS packaging ✅
 
-- `hacs.json`, README, brand assets
-- First GitHub release
-- Manual install verification in HA
+- [x] `hacs.json`, README, brand assets
+- [x] CI pack + verify scripts
+- [x] First GitHub release (`v0.1.0`)
+- [ ] Manual install verification in HA (release-only; requires real HA instance)
 
 ### Phase 6 — Polish & release gate
 

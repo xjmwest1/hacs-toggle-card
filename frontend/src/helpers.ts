@@ -1,3 +1,4 @@
+import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
 import type { RowAlign, RowControlConfig } from './types';
 
@@ -52,6 +53,20 @@ export function getToggleService(
     default:
       return null;
   }
+}
+
+export function isRowDisabled(
+  controls: RowControlConfig[],
+  hass: HomeAssistant,
+): boolean {
+  return controls.some((control) => {
+    if (control.type !== 'toggle' || !control.disables_row) {
+      return false;
+    }
+
+    const stateObj = hass.states[control.entity];
+    return stateObj ? !isEntityOn(stateObj) : false;
+  });
 }
 
 export function partitionControls(
