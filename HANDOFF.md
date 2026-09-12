@@ -4,7 +4,7 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Phase 3 (reusable row component) is complete. See [PLAN.md](./PLAN.md) for architecture and remaining phases.
+Phase 4 (visual editor + dark theme scene) is complete. See [PLAN.md](./PLAN.md) for remaining phases.
 
 ### Decisions already made
 
@@ -26,7 +26,7 @@ Each row has templated title/subtitle, icon, and left/right-aligned controls:
 
 ## Suggested next task
 
-> Implement **Phase 4 — Multi-row polish + editor**: visual editor with row/control repeaters, `getStubConfig()`, and dark theme scene. Add Vitest coverage for template eval and disable logic.
+> Implement **Phase 5 — HACS packaging**: finalize `hacs.json`, README install docs, brand assets, first GitHub release, and manual install verification in HA. Add Vitest coverage for template eval and disable logic (Phase 4 remainder / Phase 6).
 
 ## Branch naming
 

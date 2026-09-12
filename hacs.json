@@ -1,0 +1,6 @@
+{
+  "name": "Toggle Row Card",
+  "render_readme": true,
+  "filename": "hacs-toggle-card.js",
+  "homeassistant": "2023.4.0"
+}

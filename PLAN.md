@@ -178,22 +178,26 @@ Each row is a horizontal strip:
         subtitle (optional)
 ```
 
-- **Title** and **subtitle** are template strings evaluated against `hass` (entity state, attributes, `user`, `states`, etc.)
-- **Icon** is a static MDI icon or derived from a referenced entity
+- **Title** and **subtitle** are static strings with `{{ variable }}` placeholders resolved against `hass` (no JavaScript)
+- **Icon** is a static MDI icon
 - **Controls** are rendered in two alignment groups: `left` and `right`
 - When a row is **disabled**, all `button` controls in that row are non-interactive; toggles remain interactive so the user can re-enable the row
 
 ### Template strings
 
-Title and subtitle accept HA-style template strings. Examples:
+Title and subtitle accept static text mixed with explicit `{{ entity_id.field }}` placeholders.
 
-| Template | Resolves to |
+| Example | Resolves to |
 |----------|-------------|
 | `Porch Light` | Literal string |
-| `[[[ return states['switch.porch'].attributes.friendly_name; ]]]` | Entity friendly name |
-| `[[[ return states['sensor.temp'].state + '°'; ]]]` | Dynamic value |
+| `{{ switch.porch.name }}` | Entity friendly name |
+| `Light: {{ switch.porch.name }} ({{ switch.porch.state_label }})` | Static text + values |
+| `{{ switch.porch.state }}` | Entity state |
+| `{{ switch.porch.attr.brightness }}` | Entity attribute |
 
-Evaluation runs on each `hass` update. Invalid templates surface a row-level warning, not a full card crash.
+Supported suffixes: `name`, `state`, `state_label`, `unit`, `entity`, and `attr.<name>` on any entity ID.
+
+Evaluation runs on each `hass` update. Unknown variables surface a row-level warning, not a full card crash.
 
 ### Sub-components
 
@@ -232,8 +236,8 @@ Evaluation runs on each `hass` update. Invalid templates surface a row-level war
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
-    title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]"
-    subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]"
+    title: '{{ switch.porch.name }}'
+    subtitle: '{{ switch.porch.state_label }}'
     controls:
       - type: button
         align: left
@@ -283,7 +287,6 @@ interface ToggleRowConfig {
   title: string;
   subtitle?: string;
   icon?: string;
-  entity?: string; // optional default entity for template context
   controls: RowControlConfig[];
 }
 
@@ -504,13 +507,14 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Refactor card to render `rows[]` using `toggle-row`
 - [ ] Vitest: template eval, disable logic, control normalization
 
-### Phase 4 — Multi-row polish + editor
+### Phase 4 — Multi-row polish + editor ✅
 
-- Multi-row YAML config with rich control examples
-- Visual editor with row repeater and per-row control builder
-- Control-type picker (button / toggle), alignment selector
-- `getStubConfig()` for card picker
-- Dark theme scene
+- [x] Multi-row YAML config with rich control examples
+- [x] Visual editor with row repeater and per-row control builder
+- [x] Control-type picker (button / toggle), alignment selector
+- [x] `getStubConfig()` for card picker
+- [x] Dark theme scene
+- [ ] Vitest: template eval, disable logic, control normalization
 
 ### Phase 5 — HACS packaging
 

@@ -25,15 +25,17 @@ export const config: ToggleRowCardConfig = {
           align: 'right',
           entity: entityId,
         },
+      ],
+    },
+    {
+      icon: 'mdi:account-multiple',
+      title: 'Guest Mode',
+      subtitle: 'Off',
+      controls: [
         {
-          type: 'button',
+          type: 'toggle',
           align: 'right',
-          title: 'Run',
-          icon: 'mdi:play',
-          tap_action: {
-            action: 'call-service',
-            service: 'script.porch_scene',
-          },
+          entity: 'input_boolean.guest_mode',
         },
       ],
     },
@@ -42,4 +44,9 @@ export const config: ToggleRowCardConfig = {
 
 export const hass = createMockHass({
   [entityId]: createSwitchEntity(entityId, 'on', 'Porch Light'),
+  'input_boolean.guest_mode': createSwitchEntity(
+    'input_boolean.guest_mode',
+    'off',
+    'Guest Mode',
+  ),
 });

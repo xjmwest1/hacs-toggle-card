@@ -9,12 +9,15 @@ const frontendDir = resolve(__dirname, '..');
 const outputDir = resolve(frontendDir, '../artifacts/screenshots');
 
 const scenes = [
-  'default-on',
-  'default-off',
-  'loading',
-  'unavailable',
-  'row-with-buttons',
-  'row-disabled',
+  { id: 'default-on', selector: 'toggle-row-card' },
+  { id: 'default-off', selector: 'toggle-row-card' },
+  { id: 'loading', selector: 'toggle-row-card' },
+  { id: 'unavailable', selector: 'toggle-row-card' },
+  { id: 'row-with-buttons', selector: 'toggle-row-card' },
+  { id: 'row-disabled', selector: 'toggle-row-card' },
+  { id: 'multi-row', selector: 'toggle-row-card' },
+  { id: 'dark-theme', selector: 'toggle-row-card' },
+  { id: 'editor', selector: 'toggle-row-card-editor' },
 ] as const;
 
 async function main(): Promise<void> {
@@ -34,24 +37,35 @@ async function main(): Promise<void> {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 480, height: 320 },
+    viewport: { width: 480, height: sceneViewportHeight('default-on') },
   });
 
   for (const scene of scenes) {
-    await page.goto(`${url}/?scene=${scene}`, { waitUntil: 'networkidle' });
-    await page.waitForSelector('toggle-row-card', { timeout: 10_000 });
+    await page.setViewportSize({ width: 480, height: sceneViewportHeight(scene.id) });
+    await page.goto(`${url}/?scene=${scene.id}`, { waitUntil: 'networkidle' });
+    await page.waitForSelector(scene.selector, { timeout: 10_000 });
     await page.waitForTimeout(300);
 
     const frame = page.locator('#screenshot-frame');
     await frame.screenshot({
-      path: resolve(outputDir, `${scene}.png`),
+      path: resolve(outputDir, `${scene.id}.png`),
     });
 
-    console.log(`Captured ${scene}.png`);
+    console.log(`Captured ${scene.id}.png`);
   }
 
   await browser.close();
   await server.close();
+}
+
+function sceneViewportHeight(sceneId: string): number {
+  if (sceneId === 'multi-row') {
+    return 420;
+  }
+  if (sceneId === 'editor') {
+    return 720;
+  }
+  return 320;
 }
 
 main().catch((error) => {

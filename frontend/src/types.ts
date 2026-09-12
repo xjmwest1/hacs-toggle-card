@@ -25,7 +25,6 @@ export interface ToggleRowConfig {
   title: string;
   subtitle?: string;
   icon?: string;
-  entity?: string;
   controls: RowControlConfig[];
 }
 

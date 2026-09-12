@@ -6,7 +6,6 @@ import './row-toggle';
 import {
   getMdiPath,
   isEntityOn,
-  isEntityUnavailable,
   partitionControls,
 } from '../helpers';
 import { rowStyles } from '../styles';
@@ -30,26 +29,20 @@ export class ToggleRow extends LitElement {
           ? { value: this.config.subtitle }
           : null;
 
-    const contextEntity = this.config.entity
-      ? this.hass?.states[this.config.entity]
-      : undefined;
-    const unavailable = isEntityUnavailable(contextEntity);
     const rowDisabled = this._isRowDisabled();
     const { left, right } = partitionControls(this.config.controls ?? []);
-    const icon = this.config.icon ?? contextEntity?.attributes.icon;
+    const icon = this.config.icon;
 
     return html`
       <div class="toggle-row ${rowDisabled ? 'toggle-row--disabled' : ''}">
         ${icon ? this._renderIcon(icon) : ''}
         <div class="row-text">
-          <div class="row-title ${unavailable ? 'row-title--unavailable' : ''}">
+          <div class="row-title">
             ${titleResult.value}
           </div>
           ${subtitleResult?.value
             ? html`
-                <div
-                  class="row-subtitle ${unavailable ? 'row-subtitle--unavailable' : ''}"
-                >
+                <div class="row-subtitle">
                   ${subtitleResult.value}
                 </div>
               `

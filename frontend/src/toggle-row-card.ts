@@ -27,7 +27,8 @@ customCardsWindow.customCards.push({
 @customElement('toggle-row-card')
 export class ToggleRowCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    throw new Error('Visual editor is not available yet');
+    await import('./toggle-row-card-editor');
+    return document.createElement('toggle-row-card-editor') as LovelaceCardEditor;
   }
 
   public static getStubConfig(): Record<string, unknown> {
@@ -35,12 +36,35 @@ export class ToggleRowCard extends LitElement implements LovelaceCard {
       rows: [
         {
           icon: 'mdi:lightbulb',
-          title: 'Example Light',
+          title: 'Porch Light',
+          subtitle: 'On',
+          controls: [
+            {
+              type: 'button',
+              align: 'left',
+              icon: 'mdi:information-outline',
+              tap_action: {
+                action: 'more-info',
+                entity: 'switch.porch',
+              },
+            },
+            {
+              type: 'toggle',
+              align: 'right',
+              entity: 'switch.porch',
+            },
+          ],
+        },
+        {
+          icon: 'mdi:account-multiple',
+          title: 'Guest Mode',
+          subtitle: 'Off',
           controls: [
             {
               type: 'toggle',
               align: 'right',
-              entity: 'switch.example',
+              entity: 'input_boolean.guest_mode',
+              disables_row: true,
             },
           ],
         },
