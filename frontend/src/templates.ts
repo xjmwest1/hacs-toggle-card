@@ -132,7 +132,7 @@ function formatVariableValue(
 ): TemplateResult {
   const [type, style = 'medium'] = format.includes(':') ? format.split(':', 2) : [format, 'medium'];
 
-  if (type !== 'date' && type !== 'datetime') {
+  if (type !== 'date' && type !== 'datetime' && type !== 'relative') {
     return { value: rawValue, error: `Unknown format: ${format}` };
   }
 
@@ -142,11 +142,55 @@ function formatVariableValue(
   }
 
   const locale = hass.locale?.language ?? 'en-US';
+
+  if (type === 'relative') {
+    return {
+      value: formatRelativeDate(date, locale, style),
+    };
+  }
+
   const options = getDateFormatOptions(type, style);
 
   return {
     value: new Intl.DateTimeFormat(locale, options).format(date),
   };
+}
+
+function formatRelativeDate(date: Date, locale: string, style: string): string {
+  const formatter = new Intl.RelativeTimeFormat(locale, getRelativeFormatOptions(style));
+  const deltaSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+
+  const units: { unit: Intl.RelativeTimeFormatUnit; seconds: number }[] = [
+    { unit: 'year', seconds: 31_536_000 },
+    { unit: 'month', seconds: 2_592_000 },
+    { unit: 'week', seconds: 604_800 },
+    { unit: 'day', seconds: 86_400 },
+    { unit: 'hour', seconds: 3_600 },
+    { unit: 'minute', seconds: 60 },
+    { unit: 'second', seconds: 1 },
+  ];
+
+  for (const { unit, seconds } of units) {
+    if (Math.abs(deltaSeconds) >= seconds || unit === 'second') {
+      return formatter.format(Math.round(deltaSeconds / seconds), unit);
+    }
+  }
+
+  return formatter.format(0, 'second');
+}
+
+function getRelativeFormatOptions(style: string): Intl.RelativeTimeFormatOptions {
+  switch (style) {
+    case 'short':
+      return { numeric: 'auto', style: 'short' };
+    case 'narrow':
+      return { numeric: 'auto', style: 'narrow' };
+    case 'long':
+      return { numeric: 'auto', style: 'long' };
+    case 'medium':
+    default:
+      return { numeric: 'auto', style: 'long' };
+  }
 }
 
 function getDateFormatOptions(

@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createSwitchEntity } from '../fixtures/hass-base';
 import { evaluateTemplate, parseVariableToken } from './templates';
 
@@ -25,6 +25,10 @@ const hass = {
   },
   locale: { language: 'en-US' },
 } as unknown as HomeAssistant;
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('parseVariableToken', () => {
   it('parses qualified entity tokens', () => {
@@ -85,6 +89,37 @@ describe('evaluateTemplate', () => {
 
     expect(result.error).toBeUndefined();
     expect(result.value).toMatch(/^Starts 9\/12\/26/);
+  });
+
+  it('formats timestamps as relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Updated {{ sensor.event.last_updated | relative }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Updated .*hour/i);
+  });
+
+  it('formats timestamps as short relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Updated {{ sensor.event.last_updated | relative:short }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Updated /);
+    expect(result.value.toLowerCase()).toContain('hr');
+  });
+
+  it('formats future attribute values as relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Starts {{ sensor.event.attr.start | relative }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value.toLowerCase()).toMatch(/^starts .*hour/);
   });
 
   it('reports unknown variables', () => {

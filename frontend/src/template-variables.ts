@@ -27,6 +27,12 @@ const DATE_FORMATS = [
     label: 'Short date & time',
     description: 'Locale short date and time',
   },
+  { format: 'relative', label: 'Relative time', description: 'Relative time such as "2 hours ago"' },
+  {
+    format: 'relative:short',
+    label: 'Short relative time',
+    description: 'Compact relative time such as "2 hr. ago"',
+  },
 ] as const;
 
 const EXAMPLE_ENTITY = 'switch.example';

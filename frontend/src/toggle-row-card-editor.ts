@@ -259,8 +259,9 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         </datalist>
         <div class="template-help">
           Use entity variables like <code>{{ switch.porch.name }}</code>. Format dates with
-          <code>{{ switch.porch.last_changed | date }}</code> or
-          <code>{{ sensor.event.attr.start | datetime:short }}</code>.
+          <code>{{ switch.porch.last_changed | date }}</code>,
+          <code>{{ sensor.event.attr.start | datetime:short }}</code>, or relative values like
+          <code>{{ switch.porch.last_updated | relative }}</code>.
           ${hasEntitySources ? nothing : html`<span> Set a row entity for suggestions.</span>`}
         </div>
       </label>
