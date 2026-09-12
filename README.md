@@ -6,6 +6,8 @@ A Home Assistant Lovelace card built from reusable **row components** — each r
 
 ### HACS (recommended)
 
+> **Troubleshooting:** If HACS reports `GitHub returned 404` for this repository, the repo is almost certainly **private**. HACS cannot install from private GitHub repos. Make the repository **public** under **GitHub → Settings → General → Danger zone → Change repository visibility**, then retry in HACS.
+
 1. Open **HACS → Frontend** (Dashboard plugins).
 2. Click **Explore & Download Repositories**, search for **Toggle Row Card**, and add this repository as a custom repository if needed:
    - Repository: `https://github.com/xjmwest1/hacs-toggle-card`
