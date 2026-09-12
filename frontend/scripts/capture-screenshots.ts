@@ -15,6 +15,7 @@ const scenes = [
   { id: 'unavailable', selector: 'toggle-row-card' },
   { id: 'row-with-buttons', selector: 'toggle-row-card' },
   { id: 'row-disabled', selector: 'toggle-row-card' },
+  { id: 'row-disabled-entity-on', selector: 'toggle-row-card' },
   { id: 'multi-row', selector: 'toggle-row-card' },
   { id: 'dark-theme', selector: 'toggle-row-card' },
   { id: 'editor', selector: 'toggle-row-card-editor' },
@@ -63,7 +64,7 @@ function sceneViewportHeight(sceneId: string): number {
     return 420;
   }
   if (sceneId === 'editor') {
-    return 720;
+    return 860;
   }
   return 320;
 }

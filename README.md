@@ -108,7 +108,19 @@ After `npm run pack`:
 
 ```bash
 node scripts/verify-hacs-package.mjs
+npm test
+npm run smoke   # Playwright smoke against dist/hacs-toggle-card.js
 ```
+
+Release tags (`v*`) run the same smoke checks in GitHub Actions via `.github/workflows/release-smoke.yml`.
+
+### HACS default store submission
+
+This repository is ready for manual submission to the [HACS default store](https://www.hacs.xyz/docs/publish/include/):
+
+1. Confirm a tagged release exists with `hacs-toggle-card.js` attached.
+2. Open a PR to [hacs/default](https://github.com/hacs/default) adding this repository under the **plugin** category.
+3. Ensure `hacs.json`, `README.md`, and `brand/icon.png` remain valid (`node scripts/verify-hacs-package.mjs`).
 
 ### Playground scenes
 
@@ -118,6 +130,7 @@ node scripts/verify-hacs-package.mjs
 | Switch off | `/?scene=default-off` |
 | Row with buttons | `/?scene=row-with-buttons` |
 | Row disabled | `/?scene=row-disabled` |
+| Row disabled, entity on | `/?scene=row-disabled-entity-on` |
 | Multi-row | `/?scene=multi-row` |
 | Dark theme | `/?scene=dark-theme` |
 | Visual editor | `/?scene=editor` |

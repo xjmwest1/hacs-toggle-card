@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toggle Row Card Bundle Smoke</title>
+    <style>
+      :root {
+        --primary-color: #03a9f4;
+        --card-background-color: #ffffff;
+        --primary-text-color: rgba(0, 0, 0, 0.87);
+        --secondary-text-color: rgba(0, 0, 0, 0.54);
+        --divider-color: rgba(0, 0, 0, 0.12);
+        --disabled-color: rgba(0, 0, 0, 0.26);
+        --state-icon-color: #ffa000;
+        --text-primary-color: #ffffff;
+        --error-color: #f44336;
+        font-family: Roboto, system-ui, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 16px;
+        background: #f5f5f5;
+      }
+
+      ha-card {
+        display: block;
+        background: var(--card-background-color);
+        border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="card-host"></div>
+    <script type="module">
+      await import('/hacs-toggle-card.js');
+
+      const hass = {
+        states: {
+          'switch.porch': {
+            entity_id: 'switch.porch',
+            state: 'on',
+            attributes: {
+              friendly_name: 'Porch Light',
+              icon: 'mdi:lightbulb',
+            },
+          },
+        },
+        callService: async () => {},
+      };
+
+      const card = document.createElement('toggle-row-card');
+      card.setConfig({
+        type: 'custom:toggle-row-card',
+        rows: [
+          {
+            icon: 'mdi:lightbulb',
+            entity: 'switch.porch',
+            title: 'Porch Light',
+            subtitle: 'On',
+            controls: [
+              {
+                type: 'button',
+                align: 'left',
+                icon: 'mdi:information-outline',
+              },
+              {
+                type: 'toggle',
+                align: 'right',
+                entity: 'switch.porch',
+              },
+            ],
+          },
+        ],
+      });
+      card.hass = hass;
+      document.querySelector('#card-host').replaceChildren(card);
+    </script>
+  </body>
+</html>

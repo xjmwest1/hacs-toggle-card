@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Shared card config validation and normalization (`frontend/src/config.ts`)
+- Vitest coverage for config edge cases (empty rows, invalid controls, card size)
+- Release smoke script (`npm run smoke`) and `release-smoke.yml` workflow on `v*` tags
+
 ## [0.1.0] - 2026-09-12
 
 First public release for HACS and manual install.
