@@ -3,6 +3,7 @@ import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from '
 import { customElement, property, state } from 'lit/decorators.js';
 import './toggle-row-card';
 import { validateCardConfig } from './config';
+import { applyRowEntitySelection, getEntityPickerOptions } from './editor-row-entity';
 import { sharedVars } from './styles';
 import {
   getTemplateVariables,
@@ -34,7 +35,6 @@ function createEmptyRow(): ToggleRowConfig {
   return {
     title: 'New row',
     icon: 'mdi:toggle-switch',
-    entity: 'switch.example',
     controls: [
       {
         type: 'toggle',
@@ -83,9 +83,11 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         <div class="editor-section">
           <div class="section-header">
             <h3>Rows</h3>
-            <button class="text-button" type="button" @click=${this._addRow}>Add row</button>
           </div>
           ${this._config.rows.map((row, rowIndex) => this._renderRowEditor(row, rowIndex))}
+          <button class="text-button add-row-button" type="button" @click=${this._addRow}>
+            Add row
+          </button>
         </div>
       </div>
     `;
@@ -183,20 +185,10 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           </div>
         </div>
 
+        ${this._renderRowEntityField(row, rowIndex)}
+
         ${this._renderTemplateField(rowIndex, 'title', row.title, row)}
         ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row, true)}
-
-        <label class="field">
-          <span>Row entity</span>
-          <input
-            .value=${row.entity ?? ''}
-            placeholder="switch.example"
-            @input=${(ev: Event) =>
-              this._updateRow(rowIndex, {
-                entity: (ev.target as HTMLInputElement).value || undefined,
-              })}
-          />
-        </label>
 
         <label class="field">
           <span>Icon</span>
@@ -239,6 +231,49 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         </div>
       </div>
     `;
+  }
+
+  private _renderRowEntityField(row: ToggleRowConfig, rowIndex: number): TemplateResult {
+    const entityOptions = getEntityPickerOptions(this.hass);
+
+    if (entityOptions.length === 0) {
+      return html`
+        <label class="field">
+          <span>Optional</span>
+          <input
+            .value=${row.entity ?? ''}
+            placeholder="switch.example"
+            @input=${(ev: Event) => this._updateRowEntity(rowIndex, ev)}
+          />
+        </label>
+      `;
+    }
+
+    return html`
+      <label class="field">
+        <span>Optional</span>
+        <select
+          .value=${row.entity ?? ''}
+          @change=${(ev: Event) => this._updateRowEntity(rowIndex, ev)}
+        >
+          <option value="">None</option>
+          ${entityOptions.map(
+            (entityId) => html`
+              <option value=${entityId}>${entityId}</option>
+            `,
+          )}
+        </select>
+      </label>
+    `;
+  }
+
+  private _updateRowEntity(rowIndex: number, ev: Event): void {
+    const target = ev.target as HTMLInputElement | HTMLSelectElement;
+    const entityId = target.value || undefined;
+    const row = this._config.rows[rowIndex];
+    const updatedRow = applyRowEntitySelection(row, entityId, this.hass, row.entity);
+
+    this._updateRow(rowIndex, updatedRow);
   }
 
   private _renderTemplateField(
@@ -534,7 +569,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     this._notifyConfigChanged();
   }
 
-  private _updateRow(rowIndex: number, patch: Partial<ToggleRowConfig>): void {
+  private _updateRow(rowIndex: number, patch: Partial<ToggleRowConfig> | ToggleRowConfig): void {
     const rows = [...this._config.rows];
     rows[rowIndex] = { ...rows[rowIndex], ...patch };
     this._config = { ...this._config, rows };
@@ -745,6 +780,11 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         color: var(--toggle-row-accent);
         cursor: pointer;
         font: inherit;
+      }
+
+      .add-row-button {
+        align-self: flex-start;
+        padding: 4px 0;
       }
 
       .icon-button {
