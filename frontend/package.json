@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "pack": "npm run build && node ../scripts/copy-hacs-dist.mjs",
     "preview": "vite preview",
     "screenshots": "tsx scripts/capture-screenshots.ts"
   },
