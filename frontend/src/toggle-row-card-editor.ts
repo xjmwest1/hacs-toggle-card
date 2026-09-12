@@ -2,6 +2,13 @@ import { ActionConfig, HomeAssistant, LovelaceCardEditor } from 'custom-card-hel
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { applyRowEntitySelection, getEntityPickerOptions } from './editor-row-entity';
+import {
+  createSceneTapAction,
+  getButtonTapActionType,
+  getSceneFromTapAction,
+  getScenePickerOptions,
+  type ButtonTapActionType,
+} from './editor-scene-picker';
 import { sharedVars } from './styles';
 import {
   getTemplateVariables,
@@ -140,10 +147,10 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row, true)}
 
         <label class="field">
-          <span>Icon</span>
+          <span>Icon (optional)</span>
           <input
             .value=${row.icon ?? ''}
-            placeholder="mdi:lightbulb (optional — falls back to entity icon)"
+            placeholder="mdi:lightbulb — falls back to entity icon"
             @input=${(ev: Event) =>
               this._updateRow(rowIndex, {
                 icon: (ev.target as HTMLInputElement).value || undefined,
@@ -188,7 +195,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     if (entityOptions.length === 0) {
       return html`
         <label class="field">
-          <span>Optional</span>
+          <span>Entity (optional)</span>
           <input
             .value=${row.entity ?? ''}
             placeholder="switch.example"
@@ -200,7 +207,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
 
     return html`
       <label class="field">
-        <span>Optional</span>
+        <span>Entity (optional)</span>
         <select
           .value=${row.entity ?? ''}
           @change=${(ev: Event) => this._updateRowEntity(rowIndex, ev)}
@@ -238,7 +245,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
 
     return html`
       <label class="field">
-        <span>${field === 'title' ? 'Title' : 'Subtitle'}</span>
+        <span>${field === 'title' ? 'Title' : 'Subtitle (optional)'}</span>
         <input
           id=${`${field}-${rowIndex}`}
           list=${listId}
@@ -296,22 +303,50 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     control: RowControlConfig,
     controlIndex: number,
   ): TemplateResult {
+    const controls = this._config.rows[rowIndex].controls;
+
     return html`
       <div class="control-editor">
         <div class="control-header">
           <span>Control ${controlIndex + 1}</span>
-          ${rowIndex >= 0 && this._config.rows[rowIndex].controls.length > 1
-            ? html`
-                <button
-                  class="icon-button danger"
-                  type="button"
-                  title="Remove control"
-                  @click=${() => this._removeControl(rowIndex, controlIndex)}
-                >
-                  ×
-                </button>
-              `
-            : nothing}
+          <div class="row-actions">
+            ${controlIndex > 0
+              ? html`
+                  <button
+                    class="icon-button"
+                    type="button"
+                    title="Move up"
+                    @click=${() => this._moveControl(rowIndex, controlIndex, -1)}
+                  >
+                    ↑
+                  </button>
+                `
+              : nothing}
+            ${controlIndex < controls.length - 1
+              ? html`
+                  <button
+                    class="icon-button"
+                    type="button"
+                    title="Move down"
+                    @click=${() => this._moveControl(rowIndex, controlIndex, 1)}
+                  >
+                    ↓
+                  </button>
+                `
+              : nothing}
+            ${controls.length > 1
+              ? html`
+                  <button
+                    class="icon-button danger"
+                    type="button"
+                    title="Remove control"
+                    @click=${() => this._removeControl(rowIndex, controlIndex)}
+                  >
+                    ×
+                  </button>
+                `
+              : nothing}
+          </div>
         </div>
 
         <label class="field">
@@ -383,7 +418,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
   ): TemplateResult {
     return html`
       <label class="field">
-        <span>Button title</span>
+        <span>Button title (optional)</span>
         <input
           .value=${control.title ?? ''}
           @input=${(ev: Event) =>
@@ -393,7 +428,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         />
       </label>
       <label class="field">
-        <span>Button icon</span>
+        <span>Button icon (optional)</span>
         <input
           .value=${control.icon ?? ''}
           placeholder="mdi:information-outline"
@@ -406,15 +441,16 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
       <label class="field">
         <span>Tap action</span>
         <select
-          .value=${control.tap_action?.action ?? 'none'}
+          .value=${getButtonTapActionType(control.tap_action)}
           @change=${(ev: Event) => this._updateButtonAction(rowIndex, controlIndex, ev)}
         >
           <option value="none">None</option>
           <option value="more-info">More info</option>
+          <option value="trigger-scene">Trigger scene</option>
           <option value="call-service">Call service</option>
         </select>
       </label>
-      ${control.tap_action?.action === 'more-info'
+      ${getButtonTapActionType(control.tap_action) === 'more-info'
         ? html`
             <label class="field">
               <span>Action entity</span>
@@ -425,7 +461,10 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             </label>
           `
         : nothing}
-      ${control.tap_action?.action === 'call-service'
+      ${getButtonTapActionType(control.tap_action) === 'trigger-scene'
+        ? this._renderScenePicker(rowIndex, controlIndex, control)
+        : nothing}
+      ${getButtonTapActionType(control.tap_action) === 'call-service'
         ? html`
             <label class="field">
               <span>Service</span>
@@ -437,6 +476,48 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             </label>
           `
         : nothing}
+    `;
+  }
+
+  private _renderScenePicker(
+    rowIndex: number,
+    controlIndex: number,
+    control: RowButtonConfig,
+  ): TemplateResult {
+    const sceneOptions = getScenePickerOptions(this.hass);
+    const selectedScene = getSceneFromTapAction(control.tap_action);
+    const listId = `scene-picker-${rowIndex}-${controlIndex}`;
+
+    if (sceneOptions.length === 0) {
+      return html`
+        <label class="field">
+          <span>Scene</span>
+          <input
+            .value=${selectedScene}
+            placeholder="scene.example"
+            @input=${(ev: Event) => this._updateButtonScene(rowIndex, controlIndex, ev)}
+          />
+        </label>
+      `;
+    }
+
+    return html`
+      <label class="field">
+        <span>Scene</span>
+        <input
+          list=${listId}
+          .value=${selectedScene}
+          placeholder="Filter scenes..."
+          @input=${(ev: Event) => this._updateButtonScene(rowIndex, controlIndex, ev)}
+        />
+        <datalist id=${listId}>
+          ${sceneOptions.map(
+            (option) => html`
+              <option value=${option.entityId}>${option.label}</option>
+            `,
+          )}
+        </datalist>
+      </label>
     `;
   }
 
@@ -495,6 +576,24 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     this._notifyConfigChanged();
   }
 
+  private _moveControl(rowIndex: number, controlIndex: number, direction: -1 | 1): void {
+    const rows = [...this._config.rows];
+    const controls = [...rows[rowIndex].controls];
+    const targetIndex = controlIndex + direction;
+
+    if (targetIndex < 0 || targetIndex >= controls.length) {
+      return;
+    }
+
+    [controls[controlIndex], controls[targetIndex]] = [controls[targetIndex], controls[controlIndex]];
+    rows[rowIndex] = {
+      ...rows[rowIndex],
+      controls,
+    };
+    this._config = { ...this._config, rows };
+    this._notifyConfigChanged();
+  }
+
   private _setControlType(rowIndex: number, controlIndex: number, type: ControlType): void {
     const rows = [...this._config.rows];
     rows[rowIndex] = {
@@ -524,22 +623,41 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
   }
 
   private _updateButtonAction(rowIndex: number, controlIndex: number, ev: Event): void {
-    const action = (ev.target as HTMLSelectElement).value;
+    const action = (ev.target as HTMLSelectElement).value as ButtonTapActionType;
     const rows = [...this._config.rows];
     const control = rows[rowIndex].controls[controlIndex] as RowButtonConfig;
     const currentEntity =
       control.tap_action && 'entity' in control.tap_action ? control.tap_action.entity : 'switch.example';
     const currentService =
       control.tap_action && 'service' in control.tap_action ? control.tap_action.service : 'script.example';
+    const currentScene =
+      getSceneFromTapAction(control.tap_action) ||
+      getScenePickerOptions(this.hass)[0]?.entityId ||
+      'scene.example';
 
     if (action === 'none') {
       control.tap_action = { action: 'none' };
     } else if (action === 'more-info') {
       control.tap_action = { action: 'more-info', entity: currentEntity };
+    } else if (action === 'trigger-scene') {
+      control.tap_action = createSceneTapAction(currentScene);
     } else if (action === 'call-service') {
       control.tap_action = { action: 'call-service', service: currentService };
     }
 
+    this._config = { ...this._config, rows };
+    this._notifyConfigChanged();
+  }
+
+  private _updateButtonScene(rowIndex: number, controlIndex: number, ev: Event): void {
+    const sceneEntityId = (ev.target as HTMLInputElement).value.trim();
+    if (!sceneEntityId) {
+      return;
+    }
+
+    const rows = [...this._config.rows];
+    const control = rows[rowIndex].controls[controlIndex] as RowButtonConfig;
+    control.tap_action = createSceneTapAction(sceneEntityId);
     this._config = { ...this._config, rows };
     this._notifyConfigChanged();
   }
