@@ -1,30 +1,58 @@
-<<<<<<< HEAD
 # Toggle Row Card
 
-A compact Home Assistant Lovelace card that displays entities as toggle rows — ideal for switches, booleans, and other on/off controls.
+A Home Assistant Lovelace card built from reusable **row components** — each row has a templated title/subtitle, icon, and composable controls (buttons and toggles).
 
-> **Status:** Planning — see [PLAN.md](./PLAN.md) for the full project plan, architecture, and implementation roadmap.
+> **Status:** Reusable row component implemented — see [PLAN.md](./PLAN.md).
 
-## Planned features
+## Row model
 
-- Vertical list of toggle rows with theme-aware styling
-- Single-entity and multi-entity configuration
-- Visual editor with row repeater
-- Fast PR screenshots via Vite playground (no full HA boot required)
+- **Title / subtitle** — template strings evaluated against `hass`
+- **Icon** — static MDI icon or entity-derived
+- **Controls** — left- or right-aligned sub-components:
+  - **Button** — title, icon, or both; performs any HA action
+  - **Toggle** — boolean value; optionally disables all row buttons when off (`disables_row`)
 
-## Development (planned)
+## Example config
+
+```yaml
+type: custom:toggle-row-card
+rows:
+  - icon: mdi:lightbulb
+    title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]"
+    subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]"
+    controls:
+      - type: button
+        align: left
+        icon: mdi:information-outline
+        tap_action:
+          action: more-info
+          entity: switch.porch
+      - type: toggle
+        align: right
+        entity: switch.porch
+```
+
+## Development
 
 ```bash
 cd frontend
 npm ci
 npm run dev          # playground at http://localhost:5173
-npm run build
-npm run screenshots  # PR artifacts → ../artifacts/screenshots/
+npm run build        # → frontend/dist/toggle-row-card.js
+npm run screenshots  # → ../artifacts/screenshots/
 ```
+
+### Playground scenes
+
+| Scene | URL |
+|-------|-----|
+| Switch on | `/?scene=default-on` |
+| Switch off | `/?scene=default-off` |
+| Row with buttons | `/?scene=row-with-buttons` |
+| Row disabled | `/?scene=row-disabled` |
+| Unavailable | `/?scene=unavailable` |
+| Loading | `/?scene=loading` |
 
 ## License
 
 TBD
-=======
-# hacs-toggle-card
->>>>>>> c524f06e07c03a6fffc5e7fdebe5ee9eb96c8af5

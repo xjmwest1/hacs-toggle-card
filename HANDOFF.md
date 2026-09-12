@@ -4,26 +4,30 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Planning is complete. Implementation has **not** started. See [PLAN.md](./PLAN.md) for architecture, repo layout, screenshot workflow, and phased roadmap.
+Phase 3 (reusable row component) is complete. See [PLAN.md](./PLAN.md) for architecture and remaining phases.
 
 ### Decisions already made
 
 - Single-component HACS repo (not a monorepo)
-- UI-focused Lovelace toggle-row card
+- UI-focused Lovelace card built from composable `toggle-row` elements
 - Fast PR screenshots via **Vite playground + Playwright** (no full HA Docker per PR)
 - Full HA smoke tests **release-only**
-- Scaffold from [custom-cards/boilerplate-card](https://github.com/custom-cards/boilerplate-card)
+- **HACS category:** Pure Lovelace plugin (no Python wrapper for now)
+- **Screenshot baselines:** Artifacts-only per PR
 
-### Open questions (resolve in Phase 1)
+### Row component model
 
-1. HACS category: pure Lovelace plugin vs Python integration wrapper?
-2. Row interactions: toggle only, or tap/hold actions?
-3. Commit screenshot baselines in repo, or artifacts-only per PR?
+Each row has templated title/subtitle, icon, and left/right-aligned controls:
 
-## Suggested first task for the new agent
+| Type | Behavior |
+|------|----------|
+| `button` | Title, icon, or both; runs any HA `ActionConfig` |
+| `toggle` | Boolean on/off; optional `disables_row` to disable all row buttons when off |
 
-> Read PLAN.md and HANDOFF.md, then implement **Phase 1 — Card scaffold**: fork boilerplate-card patterns, create `frontend/`, rename to `toggle-row-card`, and get `npm run dev` working with a single toggle-row scene.
+## Suggested next task
+
+> Implement **Phase 4 — Multi-row polish + editor**: visual editor with row/control repeaters, `getStubConfig()`, and dark theme scene. Add Vitest coverage for template eval and disable logic.
 
 ## Branch naming
 
-`cursor/<descriptive-name>-e697`
+`cursor/<descriptive-name>-83ae`
