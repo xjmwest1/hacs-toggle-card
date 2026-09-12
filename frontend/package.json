@@ -10,6 +10,7 @@
     "pack": "npm run build && node ../scripts/copy-hacs-dist.mjs",
     "preview": "vite preview",
     "screenshots": "tsx scripts/capture-screenshots.ts",
+    "smoke": "tsx scripts/release-smoke.ts",
     "test": "vitest run"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 # hacs-toggle-card — Project Plan
 
-> **Status:** Phase 5 complete — ready for Phase 6 polish & release gate  
+> **Status:** Phase 6 complete — config validation and release smoke gate  
 > **Last updated:** 2026-09-12  
 > **Repository:** `hacs-toggle-card` on GitHub
 
@@ -526,11 +526,12 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] First GitHub release (`v0.1.0`)
 - [ ] Manual install verification in HA (release-only; requires real HA instance)
 
-### Phase 6 — Polish & release gate
+### Phase 6 — Polish & release gate ✅
 
-- Vitest coverage for config edge cases
-- Optional HA smoke workflow on `release/*` tags
-- HACS default store submission (if desired)
+- [x] Vitest coverage for config edge cases
+- [x] Release bundle smoke workflow on `v*` tags (Playwright + packed `hacs-toggle-card.js`)
+- [ ] HACS default store submission (manual; see README)
+- [ ] Manual install verification in HA (release-only; requires real HA instance)
 
 ---
 
