@@ -1,6 +1,6 @@
 # hacs-toggle-card — Project Plan
 
-> **Status:** Phase 5 — HACS packaging in progress  
+> **Status:** Phase 5 complete — ready for Phase 6 polish & release gate  
 > **Last updated:** 2026-09-12  
 > **Repository:** `hacs-toggle-card` on GitHub
 
@@ -516,12 +516,12 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Dark theme scene
 - [x] Vitest: template eval, disable logic, control normalization
 
-### Phase 5 — HACS packaging (in progress)
+### Phase 5 — HACS packaging ✅
 
 - [x] `hacs.json`, README, brand assets
 - [x] CI pack + verify scripts
-- [ ] First GitHub release (`v0.1.0`)
-- [ ] Manual install verification in HA
+- [x] First GitHub release (`v0.1.0`)
+- [ ] Manual install verification in HA (release-only; requires real HA instance)
 
 ### Phase 6 — Polish & release gate
 

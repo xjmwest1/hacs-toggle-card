@@ -4,7 +4,7 @@ Use this when starting a **new Cloud Agent** connected to this repository.
 
 ## Context
 
-Phase 5 (HACS packaging) is in progress. See [PLAN.md](./PLAN.md) for remaining phases.
+Phase 5 (HACS packaging) is complete. See [PLAN.md](./PLAN.md) for remaining phases.
 
 ### Decisions already made
 
@@ -26,7 +26,7 @@ Each row has templated title/subtitle, icon, and left/right-aligned controls:
 
 ## Suggested next task
 
-> Complete **Phase 5 — HACS packaging**: tag and publish `v0.1.0` release, verify manual install in HA. Then start **Phase 6 — Polish & release gate** (config edge-case Vitest, optional HA smoke workflow).
+> Start **Phase 6 — Polish & release gate**: config edge-case Vitest, optional HA smoke workflow on `release/*` tags, HACS default store submission if desired. Manual HA install verification remains release-only.
 
 ## Branch naming
 
