@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-12
+
+### Added
+
+- Visual editor row entity picker with auto-populated icon, title, and related control fields
+- Template date, datetime, and relative formatting pipes (`| date`, `| datetime:short`, `| relative`, etc.)
+- Button **Trigger scene** action with filterable scene picker (`scene.turn_on`)
+- Control reordering within each row (move up/down)
+
+### Changed
+
+- **Add row** button moved to the bottom of the rows section
+- Optional field labels now include `(optional)` consistently
+- Live preview and template suggestion pills removed from the visual editor
+- Row entity field appears first in each row card
+
 ## [0.2.0] - 2026-09-12
 
 ### Added
