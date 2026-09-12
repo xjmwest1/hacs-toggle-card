@@ -1,63 +1,46 @@
+import type { ToggleRowConfig } from './types';
+
 export interface TemplateVariable {
   token: string;
   label: string;
   description: string;
-  requiresRowEntity?: boolean;
 }
 
-export const ROW_TEMPLATE_VARIABLES: TemplateVariable[] = [
-  {
-    token: 'name',
-    label: 'Name',
-    description: 'Friendly name of the row entity',
-    requiresRowEntity: true,
-  },
-  {
-    token: 'state',
-    label: 'State',
-    description: 'Raw state of the row entity',
-    requiresRowEntity: true,
-  },
-  {
-    token: 'state_label',
-    label: 'State label',
-    description: 'Formatted state (e.g. on → On)',
-    requiresRowEntity: true,
-  },
-  {
-    token: 'unit',
-    label: 'Unit',
-    description: 'Unit of measurement of the row entity',
-    requiresRowEntity: true,
-  },
-  {
-    token: 'entity',
-    label: 'Entity ID',
-    description: 'Row entity ID',
-    requiresRowEntity: true,
-  },
-];
+const FIELD_TOKENS = [
+  { suffix: 'name', label: 'Name', description: 'Entity friendly name' },
+  { suffix: 'state', label: 'State', description: 'Raw entity state' },
+  { suffix: 'state_label', label: 'State label', description: 'Formatted entity state' },
+  { suffix: 'unit', label: 'Unit', description: 'Unit of measurement' },
+  { suffix: 'entity', label: 'Entity ID', description: 'Entity ID string' },
+] as const;
+
+const EXAMPLE_ENTITY = 'switch.example';
+
+export function getRowToggleEntities(row: ToggleRowConfig): string[] {
+  return [
+    ...new Set(
+      row.controls
+        .filter((control) => control.type === 'toggle')
+        .map((control) => control.entity),
+    ),
+  ];
+}
+
+export function getTemplateVariables(row: ToggleRowConfig): TemplateVariable[] {
+  const entityIds = getRowToggleEntities(row);
+  const sources = entityIds.length > 0 ? entityIds : [EXAMPLE_ENTITY];
+
+  return sources.flatMap((entityId) =>
+    FIELD_TOKENS.map((field) => ({
+      token: `${entityId}.${field.suffix}`,
+      label: `${entityId} ${field.label.toLowerCase()}`,
+      description: field.description,
+    })),
+  );
+}
 
 export function formatVariableSnippet(token: string): string {
   return `{{ ${token} }}`;
-}
-
-export function getTemplateVariables(rowEntityId?: string): TemplateVariable[] {
-  const variables = [...ROW_TEMPLATE_VARIABLES];
-
-  if (rowEntityId) {
-    for (const base of ROW_TEMPLATE_VARIABLES) {
-      if (base.requiresRowEntity) {
-        variables.push({
-          token: `${rowEntityId}.${base.token}`,
-          label: `${rowEntityId} ${base.label.toLowerCase()}`,
-          description: base.description,
-        });
-      }
-    }
-  }
-
-  return variables;
 }
 
 export function insertTemplateVariable(

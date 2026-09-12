@@ -132,8 +132,8 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           </div>
         </div>
 
-        ${this._renderTemplateField(rowIndex, 'title', row.title, row.entity)}
-        ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row.entity, true)}
+        ${this._renderTemplateField(rowIndex, 'title', row.title, row)}
+        ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row, true)}
 
         <label class="field">
           <span>Icon</span>
@@ -143,18 +143,6 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             @input=${(ev: Event) =>
               this._updateRow(rowIndex, {
                 icon: (ev.target as HTMLInputElement).value || undefined,
-              })}
-          />
-        </label>
-
-        <label class="field">
-          <span>Entity (optional)</span>
-          <input
-            .value=${row.entity ?? ''}
-            placeholder="switch.example"
-            @input=${(ev: Event) =>
-              this._updateRow(rowIndex, {
-                entity: (ev.target as HTMLInputElement).value || undefined,
               })}
           />
         </label>
@@ -178,11 +166,12 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     rowIndex: number,
     field: 'title' | 'subtitle',
     value: string,
-    rowEntityId?: string,
+    row: ToggleRowConfig,
     optional = false,
   ): TemplateResult {
     const listId = `${field}-vars-${rowIndex}`;
-    const variables = getTemplateVariables(rowEntityId);
+    const variables = getTemplateVariables(row);
+    const hasToggleEntities = row.controls.some((control) => control.type === 'toggle');
 
     return html`
       <label class="field">
@@ -191,7 +180,9 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           id=${`${field}-${rowIndex}`}
           list=${listId}
           .value=${value}
-          placeholder=${optional ? 'Optional, e.g. {{ state_label }}' : 'e.g. {{ name }}'}
+          placeholder=${optional
+            ? 'Optional, e.g. {{ switch.porch.state_label }}'
+            : 'e.g. {{ switch.porch.name }}'}
           @input=${(ev: Event) => this._updateTemplateField(rowIndex, field, ev)}
         />
         <datalist id=${listId}>
@@ -204,12 +195,12 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           )}
         </datalist>
         <div class="template-help">
-          Use <code>{{ variable }}</code> inside static text. No JavaScript.
+          Use explicit entity variables like <code>{{ switch.porch.name }}</code>. Add a toggle
+          control to get insert suggestions for its entity.
+          ${hasToggleEntities ? nothing : html`<span> No toggle entities on this row yet.</span>`}
         </div>
         <div class="var-chips">
-          ${variables.map((variable) =>
-            this._renderVariableChip(rowIndex, field, variable, rowEntityId),
-          )}
+          ${variables.map((variable) => this._renderVariableChip(rowIndex, field, variable))}
         </div>
       </label>
     `;
@@ -219,16 +210,12 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
     rowIndex: number,
     field: 'title' | 'subtitle',
     variable: TemplateVariable,
-    rowEntityId?: string,
   ): TemplateResult {
-    const disabled = Boolean(variable.requiresRowEntity && !rowEntityId);
-
     return html`
       <button
         class="var-chip"
         type="button"
         title=${variable.description}
-        ?disabled=${disabled}
         @click=${(ev: Event) => this._insertTemplateVariable(rowIndex, field, variable.token, ev)}
       >
         ${variable.label}

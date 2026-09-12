@@ -47,7 +47,7 @@ type: module
 ## Row model
 
 - **Title / subtitle** — static text with `{{ variable }}` placeholders (no JavaScript)
-- **Icon** — static MDI icon or entity-derived
+- **Icon** — static MDI icon
 - **Controls** — left- or right-aligned sub-components:
   - **Button** — title, icon, or both; performs any HA action
   - **Toggle** — boolean value; optionally disables all row buttons when off (`disables_row`)
@@ -58,9 +58,8 @@ type: module
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
-    entity: switch.porch
-    title: '{{ name }}'
-    subtitle: '{{ state_label }}'
+    title: '{{ switch.porch.name }}'
+    subtitle: '{{ switch.porch.state_label }}'
     controls:
       - type: button
         align: left
@@ -75,19 +74,20 @@ rows:
 
 ### Title / subtitle variables
 
-Set `entity` on the row to use shorthand variables in title or subtitle:
+Use explicit entity references inside static text:
 
 | Variable | Value |
 |----------|-------|
-| `{{ name }}` | Friendly name |
-| `{{ state }}` | Raw state (`on`, `off`, …) |
-| `{{ state_label }}` | Formatted state (`On`, `Off`, …) |
-| `{{ unit }}` | Unit of measurement |
-| `{{ entity }}` | Entity ID |
+| `{{ switch.porch.name }}` | Friendly name |
+| `{{ switch.porch.state }}` | Raw state (`on`, `off`, …) |
+| `{{ switch.porch.state_label }}` | Formatted state (`On`, `Off`, …) |
+| `{{ switch.porch.unit }}` | Unit of measurement |
+| `{{ switch.porch.entity }}` | Entity ID |
+| `{{ switch.porch.attr.brightness }}` | Entity attribute |
 
-Mix static text and variables: `Light: {{ name }} ({{ state_label }})`.
+Mix static text and variables: `Light: {{ switch.porch.name }} ({{ switch.porch.state_label }})`.
 
-You can also reference another entity explicitly: `{{ switch.garage.state }}` or `{{ switch.garage.attr.brightness }}`.
+The visual editor suggests variables for toggle entities on the same row.
 
 ## Development
 

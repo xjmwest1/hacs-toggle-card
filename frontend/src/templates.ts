@@ -3,12 +3,6 @@ import { HassEntity } from 'home-assistant-js-websocket';
 
 const VARIABLE_PATTERN = /\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g;
 
-const ROW_FIELDS = new Set(['entity', 'name', 'state', 'state_label', 'unit']);
-
-export interface TemplateContext {
-  entityId?: string;
-}
-
 export interface TemplateResult {
   value: string;
   error?: string;
@@ -20,16 +14,12 @@ interface ParsedVariable {
   attribute?: string;
 }
 
-export function evaluateTemplate(
-  template: string,
-  hass: HomeAssistant,
-  context: TemplateContext = {},
-): TemplateResult {
+export function evaluateTemplate(template: string, hass: HomeAssistant): TemplateResult {
   const errors: string[] = [];
 
-  const value = template.replace(VARIABLE_PATTERN, (match, rawToken: string) => {
+  const value = template.replace(VARIABLE_PATTERN, (_match, rawToken: string) => {
     const token = rawToken.trim();
-    const parsed = parseVariableToken(token, context.entityId);
+    const parsed = parseVariableToken(token);
 
     if (!parsed) {
       errors.push(`Unknown variable: ${token}`);
@@ -50,33 +40,7 @@ export function evaluateTemplate(
   };
 }
 
-export function parseVariableToken(
-  token: string,
-  contextEntityId?: string,
-): ParsedVariable | null {
-  if (token.startsWith('attr.')) {
-    if (!contextEntityId) {
-      return null;
-    }
-
-    return {
-      entityId: contextEntityId,
-      field: 'attr',
-      attribute: token.slice('attr.'.length),
-    };
-  }
-
-  if (ROW_FIELDS.has(token)) {
-    if (!contextEntityId) {
-      return null;
-    }
-
-    return {
-      entityId: contextEntityId,
-      field: token,
-    };
-  }
-
+export function parseVariableToken(token: string): ParsedVariable | null {
   for (const field of ['state_label', 'state', 'name', 'unit', 'entity'] as const) {
     const suffix = `.${field}`;
     if (token.endsWith(suffix)) {
@@ -108,10 +72,7 @@ export function parseVariableToken(
   return null;
 }
 
-function resolveParsedVariable(
-  parsed: ParsedVariable,
-  hass: HomeAssistant,
-): TemplateResult {
+function resolveParsedVariable(parsed: ParsedVariable, hass: HomeAssistant): TemplateResult {
   const stateObj = hass.states[parsed.entityId];
 
   if (!stateObj) {

@@ -179,23 +179,23 @@ Each row is a horizontal strip:
 ```
 
 - **Title** and **subtitle** are static strings with `{{ variable }}` placeholders resolved against `hass` (no JavaScript)
-- **Icon** is a static MDI icon or derived from a referenced entity
+- **Icon** is a static MDI icon
 - **Controls** are rendered in two alignment groups: `left` and `right`
 - When a row is **disabled**, all `button` controls in that row are non-interactive; toggles remain interactive so the user can re-enable the row
 
 ### Template strings
 
-Title and subtitle accept static text mixed with `{{ variable }}` placeholders. Set `entity` on the row to use shorthand variables.
+Title and subtitle accept static text mixed with explicit `{{ entity_id.field }}` placeholders.
 
 | Example | Resolves to |
 |----------|-------------|
 | `Porch Light` | Literal string |
-| `{{ name }}` | Row entity friendly name |
-| `Light: {{ name }} ({{ state_label }})` | Static text + values |
-| `{{ switch.porch.state }}` | Explicit entity state |
+| `{{ switch.porch.name }}` | Entity friendly name |
+| `Light: {{ switch.porch.name }} ({{ switch.porch.state_label }})` | Static text + values |
+| `{{ switch.porch.state }}` | Entity state |
 | `{{ switch.porch.attr.brightness }}` | Entity attribute |
 
-Supported variables: `name`, `state`, `state_label`, `unit`, `entity`, `attr.<name>`, and qualified `<entity_id>.<variable>` forms.
+Supported suffixes: `name`, `state`, `state_label`, `unit`, `entity`, and `attr.<name>` on any entity ID.
 
 Evaluation runs on each `hass` update. Unknown variables surface a row-level warning, not a full card crash.
 
@@ -236,9 +236,8 @@ Evaluation runs on each `hass` update. Unknown variables surface a row-level war
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
-    entity: switch.porch
-    title: '{{ name }}'
-    subtitle: '{{ state_label }}'
+    title: '{{ switch.porch.name }}'
+    subtitle: '{{ switch.porch.state_label }}'
     controls:
       - type: button
         align: left
@@ -288,7 +287,6 @@ interface ToggleRowConfig {
   title: string;
   subtitle?: string;
   icon?: string;
-  entity?: string; // optional default entity for template context
   controls: RowControlConfig[];
 }
 

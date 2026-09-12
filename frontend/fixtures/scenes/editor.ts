@@ -8,7 +8,6 @@ export const config: ToggleRowCardConfig = {
   rows: [
     {
       icon: 'mdi:lightbulb',
-      entity: entityId,
       title: 'Porch Light',
       subtitle: 'On',
       controls: [
