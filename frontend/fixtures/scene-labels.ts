@@ -5,6 +5,9 @@ export const sceneLabels: Record<string, string> = {
   unavailable: 'Unavailable',
   'row-with-buttons': 'Row with buttons',
   'row-disabled': 'Row disabled',
+  'multi-row': 'Multi-row',
+  'dark-theme': 'Dark theme',
+  editor: 'Visual editor',
 };
 
 export function getSceneLabel(sceneId: string): string {

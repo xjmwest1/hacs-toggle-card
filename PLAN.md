@@ -504,13 +504,14 @@ Adjust based on final HACS category (integration vs plugin).
 - [x] Refactor card to render `rows[]` using `toggle-row`
 - [ ] Vitest: template eval, disable logic, control normalization
 
-### Phase 4 — Multi-row polish + editor
+### Phase 4 — Multi-row polish + editor ✅
 
-- Multi-row YAML config with rich control examples
-- Visual editor with row repeater and per-row control builder
-- Control-type picker (button / toggle), alignment selector
-- `getStubConfig()` for card picker
-- Dark theme scene
+- [x] Multi-row YAML config with rich control examples
+- [x] Visual editor with row repeater and per-row control builder
+- [x] Control-type picker (button / toggle), alignment selector
+- [x] `getStubConfig()` for card picker
+- [x] Dark theme scene
+- [ ] Vitest: template eval, disable logic, control normalization
 
 ### Phase 5 — HACS packaging
 

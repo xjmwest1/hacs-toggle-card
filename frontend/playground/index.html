@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Toggle Row Card Playground</title>
     <style>
-      :root {
+      :root,
+      :root[data-theme='light'] {
         --primary-color: #03a9f4;
         --card-background-color: #ffffff;
         --primary-text-color: rgba(0, 0, 0, 0.87);
@@ -18,6 +19,25 @@
         font-family: Roboto, system-ui, sans-serif;
         background: #f5f5f5;
         color: var(--primary-text-color);
+      }
+
+      :root[data-theme='dark'] {
+        --primary-color: #29b6f6;
+        --card-background-color: #1c1c1c;
+        --primary-text-color: rgba(255, 255, 255, 0.87);
+        --secondary-text-color: rgba(255, 255, 255, 0.54);
+        --divider-color: rgba(255, 255, 255, 0.12);
+        --disabled-color: rgba(255, 255, 255, 0.3);
+        --state-icon-color: #ffb74d;
+        --text-primary-color: #ffffff;
+        --error-color: #ef5350;
+        background: #111111;
+        color: var(--primary-text-color);
+      }
+
+      :root[data-theme='dark'] .scene-state-label {
+        background: rgba(41, 182, 246, 0.16);
+        color: #81d4fa;
       }
 
       body {
