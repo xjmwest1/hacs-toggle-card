@@ -46,6 +46,8 @@ export class EditorEntityPicker extends LitElement {
 
   @property({ type: Boolean }) public allowCustomValue = true;
 
+  @property() public domainFilter?: string;
+
   @state() private _filter = '';
 
   @state() private _open = false;
@@ -57,7 +59,13 @@ export class EditorEntityPicker extends LitElement {
   }
 
   private get _options(): EntityOption[] {
-    return getEntityOptions(this.hass);
+    const options = getEntityOptions(this.hass);
+    if (!this.domainFilter) {
+      return options;
+    }
+
+    const prefix = `${this.domainFilter}.`;
+    return options.filter((option) => option.entityId.startsWith(prefix));
   }
 
   private get _filteredOptions(): EntityOption[] {

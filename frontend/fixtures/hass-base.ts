@@ -55,6 +55,24 @@ export function createInputBooleanEntity(
   };
 }
 
+export function createSceneEntity(entityId: string, friendlyName?: string): HassEntity {
+  return {
+    entity_id: entityId,
+    state: 'scening',
+    attributes: {
+      friendly_name: friendlyName ?? entityId,
+      icon: 'mdi:palette',
+    },
+    last_changed: '2026-09-11T12:00:00.000Z',
+    last_updated: '2026-09-11T12:00:00.000Z',
+    context: {
+      id: 'mock',
+      parent_id: null,
+      user_id: null,
+    },
+  };
+}
+
 export function createMockHass(
   entities: Record<string, HassEntity>,
   onCallService?: (

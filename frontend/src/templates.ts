@@ -1,7 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
 
-const VARIABLE_PATTERN = /\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g;
+const VARIABLE_PATTERN = /\{\{\s*([^}|]+?)(?:\s*\|\s*([^}]+?))?\s*\}\}/g;
 
 export interface TemplateResult {
   value: string;
@@ -14,10 +14,20 @@ interface ParsedVariable {
   attribute?: string;
 }
 
+const FIELD_SUFFIXES = [
+  'state_label',
+  'last_changed',
+  'last_updated',
+  'state',
+  'name',
+  'unit',
+  'entity',
+] as const;
+
 export function evaluateTemplate(template: string, hass: HomeAssistant): TemplateResult {
   const errors: string[] = [];
 
-  const value = template.replace(VARIABLE_PATTERN, (_match, rawToken: string) => {
+  const value = template.replace(VARIABLE_PATTERN, (_match, rawToken: string, rawFormat?: string) => {
     const token = rawToken.trim();
     const parsed = parseVariableToken(token);
 
@@ -31,7 +41,16 @@ export function evaluateTemplate(template: string, hass: HomeAssistant): Templat
       errors.push(resolved.error);
     }
 
-    return resolved.value;
+    if (!rawFormat) {
+      return resolved.value;
+    }
+
+    const formatted = formatVariableValue(resolved.value, rawFormat.trim(), hass);
+    if (formatted.error) {
+      errors.push(formatted.error);
+    }
+
+    return formatted.value;
   });
 
   return {
@@ -41,7 +60,7 @@ export function evaluateTemplate(template: string, hass: HomeAssistant): Templat
 }
 
 export function parseVariableToken(token: string): ParsedVariable | null {
-  for (const field of ['state_label', 'state', 'name', 'unit', 'entity'] as const) {
+  for (const field of FIELD_SUFFIXES) {
     const suffix = `.${field}`;
     if (token.endsWith(suffix)) {
       const entityId = token.slice(0, -suffix.length);
@@ -93,6 +112,10 @@ function resolveParsedVariable(parsed: ParsedVariable, hass: HomeAssistant): Tem
       return { value: formatStateLabel(stateObj.state) };
     case 'unit':
       return { value: String(stateObj.attributes.unit_of_measurement ?? '') };
+    case 'last_changed':
+      return { value: stateObj.last_changed };
+    case 'last_updated':
+      return { value: stateObj.last_updated };
     case 'attr':
       return {
         value: String(stateObj.attributes[parsed.attribute ?? ''] ?? ''),
@@ -100,6 +123,114 @@ function resolveParsedVariable(parsed: ParsedVariable, hass: HomeAssistant): Tem
     default:
       return { value: '', error: `Unknown field: ${parsed.field}` };
   }
+}
+
+function formatVariableValue(
+  rawValue: string,
+  format: string,
+  hass: HomeAssistant,
+): TemplateResult {
+  const [type, style = 'medium'] = format.includes(':') ? format.split(':', 2) : [format, 'medium'];
+
+  if (type !== 'date' && type !== 'datetime' && type !== 'relative') {
+    return { value: rawValue, error: `Unknown format: ${format}` };
+  }
+
+  const date = parseDateValue(rawValue);
+  if (!date) {
+    return { value: rawValue, error: `Cannot format non-date value: ${rawValue}` };
+  }
+
+  const locale = hass.locale?.language ?? 'en-US';
+
+  if (type === 'relative') {
+    return {
+      value: formatRelativeDate(date, locale, style),
+    };
+  }
+
+  const options = getDateFormatOptions(type, style);
+
+  return {
+    value: new Intl.DateTimeFormat(locale, options).format(date),
+  };
+}
+
+function formatRelativeDate(date: Date, locale: string, style: string): string {
+  const formatter = new Intl.RelativeTimeFormat(locale, getRelativeFormatOptions(style));
+  const deltaSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+
+  const units: { unit: Intl.RelativeTimeFormatUnit; seconds: number }[] = [
+    { unit: 'year', seconds: 31_536_000 },
+    { unit: 'month', seconds: 2_592_000 },
+    { unit: 'week', seconds: 604_800 },
+    { unit: 'day', seconds: 86_400 },
+    { unit: 'hour', seconds: 3_600 },
+    { unit: 'minute', seconds: 60 },
+    { unit: 'second', seconds: 1 },
+  ];
+
+  for (const { unit, seconds } of units) {
+    if (Math.abs(deltaSeconds) >= seconds || unit === 'second') {
+      return formatter.format(Math.round(deltaSeconds / seconds), unit);
+    }
+  }
+
+  return formatter.format(0, 'second');
+}
+
+function getRelativeFormatOptions(style: string): Intl.RelativeTimeFormatOptions {
+  switch (style) {
+    case 'short':
+      return { numeric: 'auto', style: 'short' };
+    case 'narrow':
+      return { numeric: 'auto', style: 'narrow' };
+    case 'long':
+      return { numeric: 'auto', style: 'long' };
+    case 'medium':
+    default:
+      return { numeric: 'auto', style: 'long' };
+  }
+}
+
+function getDateFormatOptions(
+  type: 'date' | 'datetime',
+  style: string,
+): Intl.DateTimeFormatOptions {
+  switch (style) {
+    case 'short':
+      return type === 'datetime'
+        ? { dateStyle: 'short', timeStyle: 'short' }
+        : { dateStyle: 'short' };
+    case 'long':
+      return type === 'datetime'
+        ? { dateStyle: 'long', timeStyle: 'medium' }
+        : { dateStyle: 'long' };
+    case 'medium':
+    default:
+      return type === 'datetime'
+        ? { dateStyle: 'medium', timeStyle: 'short' }
+        : { dateStyle: 'medium' };
+  }
+}
+
+function parseDateValue(rawValue: string): Date | null {
+  if (!rawValue) {
+    return null;
+  }
+
+  const trimmed = rawValue.trim();
+  const numeric = Number(trimmed);
+  if (!Number.isNaN(numeric) && trimmed !== '') {
+    return new Date(numeric > 1e12 ? numeric : numeric * 1000);
+  }
+
+  const parsed = Date.parse(trimmed);
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed);
+  }
+
+  return null;
 }
 
 function getFriendlyName(stateObj: HassEntity): string {
@@ -119,4 +250,12 @@ function formatStateLabel(state: string): string {
   }
 
   return state;
+}
+
+export function formatVariableSnippet(token: string, format?: string): string {
+  if (!format) {
+    return `{{ ${token} }}`;
+  }
+
+  return `{{ ${token} | ${format} }}`;
 }

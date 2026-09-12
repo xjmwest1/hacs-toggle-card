@@ -1,4 +1,4 @@
-import { createMockHass, createSwitchEntity } from '../hass-base';
+import { createMockHass, createSceneEntity, createSwitchEntity } from '../hass-base';
 import type { ToggleRowCardConfig } from '@src/types';
 
 const entityId = 'switch.porch';
@@ -51,4 +51,6 @@ export const hass = createMockHass({
     'off',
     'Guest Mode',
   ),
+  'scene.movie_time': createSceneEntity('scene.movie_time', 'Movie Time'),
+  'scene.relax': createSceneEntity('scene.relax', 'Relax'),
 });

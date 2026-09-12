@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createSwitchEntity } from '../fixtures/hass-base';
 import { evaluateTemplate, parseVariableToken } from './templates';
 
@@ -7,8 +7,28 @@ const porch = createSwitchEntity('switch.porch', 'on', 'Porch Light');
 const hass = {
   states: {
     'switch.porch': porch,
+    'sensor.event': {
+      entity_id: 'sensor.event',
+      state: 'scheduled',
+      attributes: {
+        friendly_name: 'Next Event',
+        start: '2026-09-12T18:30:00.000Z',
+      },
+      last_changed: '2026-09-12T10:15:00.000Z',
+      last_updated: '2026-09-12T10:15:00.000Z',
+      context: {
+        id: 'mock',
+        parent_id: null,
+        user_id: null,
+      },
+    },
   },
+  locale: { language: 'en-US' },
 } as unknown as HomeAssistant;
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('parseVariableToken', () => {
   it('parses qualified entity tokens', () => {
@@ -23,6 +43,17 @@ describe('parseVariableToken', () => {
       entityId: 'switch.porch',
       field: 'attr',
       attribute: 'brightness',
+    });
+  });
+
+  it('parses last_changed and last_updated tokens', () => {
+    expect(parseVariableToken('switch.porch.last_changed')).toEqual({
+      entityId: 'switch.porch',
+      field: 'last_changed',
+    });
+    expect(parseVariableToken('switch.porch.last_updated')).toEqual({
+      entityId: 'switch.porch',
+      field: 'last_updated',
     });
   });
 
@@ -46,10 +77,62 @@ describe('evaluateTemplate', () => {
     });
   });
 
+  it('formats entity timestamps with date pipes', () => {
+    const result = evaluateTemplate('Changed {{ sensor.event.last_changed | date:short }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Changed 9\/12\/26/);
+  });
+
+  it('formats attribute values as datetimes', () => {
+    const result = evaluateTemplate('Starts {{ sensor.event.attr.start | datetime:short }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Starts 9\/12\/26/);
+  });
+
+  it('formats timestamps as relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Updated {{ sensor.event.last_updated | relative }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Updated .*hour/i);
+  });
+
+  it('formats timestamps as short relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Updated {{ sensor.event.last_updated | relative:short }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toMatch(/^Updated /);
+    expect(result.value.toLowerCase()).toContain('hr');
+  });
+
+  it('formats future attribute values as relative datetimes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-12T12:00:00.000Z'));
+
+    const result = evaluateTemplate('Starts {{ sensor.event.attr.start | relative }}', hass);
+
+    expect(result.error).toBeUndefined();
+    expect(result.value.toLowerCase()).toMatch(/^starts .*hour/);
+  });
+
   it('reports unknown variables', () => {
     expect(evaluateTemplate('{{ missing }}', hass)).toEqual({
       value: '',
       error: 'Unknown variable: missing',
+    });
+  });
+
+  it('reports unknown format pipes', () => {
+    expect(evaluateTemplate('{{ switch.porch.name | uppercase }}', hass)).toEqual({
+      value: 'Porch Light',
+      error: 'Unknown format: uppercase',
     });
   });
 });
