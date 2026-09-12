@@ -21,11 +21,11 @@ export class ToggleRow extends LitElement {
 
   protected render(): TemplateResult {
     const titleResult = this.hass
-      ? evaluateTemplate(this.config.title, this.hass)
+      ? evaluateTemplate(this.config.title, this.hass, { entityId: this.config.entity })
       : { value: this.config.title };
     const subtitleResult =
       this.config.subtitle && this.hass
-        ? evaluateTemplate(this.config.subtitle, this.hass)
+        ? evaluateTemplate(this.config.subtitle, this.hass, { entityId: this.config.entity })
         : this.config.subtitle
           ? { value: this.config.subtitle }
           : null;

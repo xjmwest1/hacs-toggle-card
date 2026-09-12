@@ -46,7 +46,7 @@ type: module
 
 ## Row model
 
-- **Title / subtitle** — template strings evaluated against `hass`
+- **Title / subtitle** — static text with `{{ variable }}` placeholders (no JavaScript)
 - **Icon** — static MDI icon or entity-derived
 - **Controls** — left- or right-aligned sub-components:
   - **Button** — title, icon, or both; performs any HA action
@@ -58,8 +58,9 @@ type: module
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
-    title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]"
-    subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]"
+    entity: switch.porch
+    title: '{{ name }}'
+    subtitle: '{{ state_label }}'
     controls:
       - type: button
         align: left
@@ -71,6 +72,22 @@ rows:
         align: right
         entity: switch.porch
 ```
+
+### Title / subtitle variables
+
+Set `entity` on the row to use shorthand variables in title or subtitle:
+
+| Variable | Value |
+|----------|-------|
+| `{{ name }}` | Friendly name |
+| `{{ state }}` | Raw state (`on`, `off`, …) |
+| `{{ state_label }}` | Formatted state (`On`, `Off`, …) |
+| `{{ unit }}` | Unit of measurement |
+| `{{ entity }}` | Entity ID |
+
+Mix static text and variables: `Light: {{ name }} ({{ state_label }})`.
+
+You can also reference another entity explicitly: `{{ switch.garage.state }}` or `{{ switch.garage.attr.brightness }}`.
 
 ## Development
 

@@ -2,6 +2,11 @@ import { ActionConfig, HomeAssistant, LovelaceCardEditor } from 'custom-card-hel
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { sharedVars } from './styles';
+import {
+  getTemplateVariables,
+  insertTemplateVariable,
+  type TemplateVariable,
+} from './template-variables';
 import type {
   RowAlign,
   RowButtonConfig,
@@ -127,26 +132,8 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           </div>
         </div>
 
-        <label class="field">
-          <span>Title</span>
-          <input
-            .value=${row.title}
-            @input=${(ev: Event) =>
-              this._updateRow(rowIndex, { title: (ev.target as HTMLInputElement).value })}
-          />
-        </label>
-
-        <label class="field">
-          <span>Subtitle</span>
-          <input
-            .value=${row.subtitle ?? ''}
-            placeholder="Optional"
-            @input=${(ev: Event) =>
-              this._updateRow(rowIndex, {
-                subtitle: (ev.target as HTMLInputElement).value || undefined,
-              })}
-          />
-        </label>
+        ${this._renderTemplateField(rowIndex, 'title', row.title, row.entity)}
+        ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row.entity, true)}
 
         <label class="field">
           <span>Icon</span>
@@ -185,6 +172,123 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         </div>
       </div>
     `;
+  }
+
+  private _renderTemplateField(
+    rowIndex: number,
+    field: 'title' | 'subtitle',
+    value: string,
+    rowEntityId?: string,
+    optional = false,
+  ): TemplateResult {
+    const listId = `${field}-vars-${rowIndex}`;
+    const variables = getTemplateVariables(rowEntityId);
+
+    return html`
+      <label class="field">
+        <span>${field === 'title' ? 'Title' : 'Subtitle'}</span>
+        <input
+          id=${`${field}-${rowIndex}`}
+          list=${listId}
+          .value=${value}
+          placeholder=${optional ? 'Optional, e.g. {{ state_label }}' : 'e.g. {{ name }}'}
+          @input=${(ev: Event) => this._updateTemplateField(rowIndex, field, ev)}
+        />
+        <datalist id=${listId}>
+          ${variables.map(
+            (variable) => html`
+              <option value=${this._templateSuggestion(value, variable.token)}>
+                ${variable.label}
+              </option>
+            `,
+          )}
+        </datalist>
+        <div class="template-help">
+          Use <code>{{ variable }}</code> inside static text. No JavaScript.
+        </div>
+        <div class="var-chips">
+          ${variables.map((variable) =>
+            this._renderVariableChip(rowIndex, field, variable, rowEntityId),
+          )}
+        </div>
+      </label>
+    `;
+  }
+
+  private _renderVariableChip(
+    rowIndex: number,
+    field: 'title' | 'subtitle',
+    variable: TemplateVariable,
+    rowEntityId?: string,
+  ): TemplateResult {
+    const disabled = Boolean(variable.requiresRowEntity && !rowEntityId);
+
+    return html`
+      <button
+        class="var-chip"
+        type="button"
+        title=${variable.description}
+        ?disabled=${disabled}
+        @click=${(ev: Event) => this._insertTemplateVariable(rowIndex, field, variable.token, ev)}
+      >
+        ${variable.label}
+      </button>
+    `;
+  }
+
+  private _templateSuggestion(currentValue: string, token: string): string {
+    if (!currentValue) {
+      return insertTemplateVariable('', token).value;
+    }
+
+    return `${currentValue} ${insertTemplateVariable('', token).value}`.trim();
+  }
+
+  private _updateTemplateField(
+    rowIndex: number,
+    field: 'title' | 'subtitle',
+    ev: Event,
+  ): void {
+    const value = (ev.target as HTMLInputElement).value;
+
+    if (field === 'title') {
+      this._updateRow(rowIndex, { title: value });
+      return;
+    }
+
+    this._updateRow(rowIndex, { subtitle: value || undefined });
+  }
+
+  private _insertTemplateVariable(
+    rowIndex: number,
+    field: 'title' | 'subtitle',
+    token: string,
+    ev: Event,
+  ): void {
+    const input = (ev.currentTarget as HTMLElement)
+      .closest('.field')
+      ?.querySelector('input') as HTMLInputElement | null;
+    const row = this._config.rows[rowIndex];
+    const currentValue = field === 'title' ? row.title : row.subtitle ?? '';
+    const { value, cursor } = insertTemplateVariable(
+      currentValue,
+      token,
+      input?.selectionStart,
+      input?.selectionEnd,
+    );
+
+    if (field === 'title') {
+      this._updateRow(rowIndex, { title: value });
+    } else {
+      this._updateRow(rowIndex, { subtitle: value || undefined });
+    }
+
+    if (input) {
+      requestAnimationFrame(() => {
+        input.focus();
+        input.setSelectionRange(cursor, cursor);
+      });
+    }
   }
 
   private _renderControlEditor(
@@ -575,6 +679,38 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         display: flex;
         flex-direction: column;
         gap: 12px;
+      }
+
+      .template-help {
+        color: var(--toggle-row-secondary-text);
+        font-size: 0.75rem;
+      }
+
+      .template-help code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.75rem;
+      }
+
+      .var-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .var-chip {
+        border: 1px solid var(--toggle-row-divider);
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: rgba(3, 169, 244, 0.08);
+        color: var(--toggle-row-accent);
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.75rem;
+      }
+
+      .var-chip:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
       }
     `,
   ];

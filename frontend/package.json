@@ -9,7 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "pack": "npm run build && node ../scripts/copy-hacs-dist.mjs",
     "preview": "vite preview",
-    "screenshots": "tsx scripts/capture-screenshots.ts"
+    "screenshots": "tsx scripts/capture-screenshots.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "custom-card-helpers": "^2.0.0",
@@ -21,6 +22,7 @@
     "playwright": "^1.51.0",
     "tsx": "^4.19.3",
     "typescript": "^5.9.3",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^3.0.9"
   }
 }

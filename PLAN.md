@@ -178,22 +178,26 @@ Each row is a horizontal strip:
         subtitle (optional)
 ```
 
-- **Title** and **subtitle** are template strings evaluated against `hass` (entity state, attributes, `user`, `states`, etc.)
+- **Title** and **subtitle** are static strings with `{{ variable }}` placeholders resolved against `hass` (no JavaScript)
 - **Icon** is a static MDI icon or derived from a referenced entity
 - **Controls** are rendered in two alignment groups: `left` and `right`
 - When a row is **disabled**, all `button` controls in that row are non-interactive; toggles remain interactive so the user can re-enable the row
 
 ### Template strings
 
-Title and subtitle accept HA-style template strings. Examples:
+Title and subtitle accept static text mixed with `{{ variable }}` placeholders. Set `entity` on the row to use shorthand variables.
 
-| Template | Resolves to |
+| Example | Resolves to |
 |----------|-------------|
 | `Porch Light` | Literal string |
-| `[[[ return states['switch.porch'].attributes.friendly_name; ]]]` | Entity friendly name |
-| `[[[ return states['sensor.temp'].state + '°'; ]]]` | Dynamic value |
+| `{{ name }}` | Row entity friendly name |
+| `Light: {{ name }} ({{ state_label }})` | Static text + values |
+| `{{ switch.porch.state }}` | Explicit entity state |
+| `{{ switch.porch.attr.brightness }}` | Entity attribute |
 
-Evaluation runs on each `hass` update. Invalid templates surface a row-level warning, not a full card crash.
+Supported variables: `name`, `state`, `state_label`, `unit`, `entity`, `attr.<name>`, and qualified `<entity_id>.<variable>` forms.
+
+Evaluation runs on each `hass` update. Unknown variables surface a row-level warning, not a full card crash.
 
 ### Sub-components
 
@@ -232,8 +236,9 @@ Evaluation runs on each `hass` update. Invalid templates surface a row-level war
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
-    title: "[[[ return states['switch.porch'].attributes.friendly_name; ]]]"
-    subtitle: "[[[ return states['switch.porch'].state === 'on' ? 'On' : 'Off'; ]]]"
+    entity: switch.porch
+    title: '{{ name }}'
+    subtitle: '{{ state_label }}'
     controls:
       - type: button
         align: left
