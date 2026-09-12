@@ -32,6 +32,7 @@ function createEmptyRow(): ToggleRowConfig {
   return {
     title: 'New row',
     icon: 'mdi:toggle-switch',
+    entity: 'switch.example',
     controls: [
       {
         type: 'toggle',
@@ -136,16 +137,44 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
         ${this._renderTemplateField(rowIndex, 'subtitle', row.subtitle ?? '', row, true)}
 
         <label class="field">
+          <span>Row entity</span>
+          <input
+            .value=${row.entity ?? ''}
+            placeholder="switch.example"
+            @input=${(ev: Event) =>
+              this._updateRow(rowIndex, {
+                entity: (ev.target as HTMLInputElement).value || undefined,
+              })}
+          />
+        </label>
+
+        <label class="field">
           <span>Icon</span>
           <input
             .value=${row.icon ?? ''}
-            placeholder="mdi:lightbulb"
+            placeholder="mdi:lightbulb (optional — falls back to entity icon)"
             @input=${(ev: Event) =>
               this._updateRow(rowIndex, {
                 icon: (ev.target as HTMLInputElement).value || undefined,
               })}
           />
         </label>
+
+        ${row.entity
+          ? html`
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  .checked=${row.icon_state ?? true}
+                  @change=${(ev: Event) =>
+                    this._updateRow(rowIndex, {
+                      icon_state: (ev.target as HTMLInputElement).checked,
+                    })}
+                />
+                <span>Tint icon by entity state</span>
+              </label>
+            `
+          : nothing}
 
         <div class="controls-section">
           <div class="section-header">
@@ -171,7 +200,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
   ): TemplateResult {
     const listId = `${field}-vars-${rowIndex}`;
     const variables = getTemplateVariables(row);
-    const hasToggleEntities = row.controls.some((control) => control.type === 'toggle');
+    const hasEntitySources = getTemplateVariables(row).length > 0;
 
     return html`
       <label class="field">
@@ -195,9 +224,9 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           )}
         </datalist>
         <div class="template-help">
-          Use explicit entity variables like <code>{{ switch.porch.name }}</code>. Add a toggle
-          control to get insert suggestions for its entity.
-          ${hasToggleEntities ? nothing : html`<span> No toggle entities on this row yet.</span>`}
+          Use explicit entity variables like <code>{{ switch.porch.name }}</code>. Set a row
+          entity or add a toggle control for insert suggestions.
+          ${hasEntitySources ? nothing : html`<span> No entities on this row yet.</span>`}
         </div>
         <div class="var-chips">
           ${variables.map((variable) => this._renderVariableChip(rowIndex, field, variable))}

@@ -25,6 +25,10 @@ export interface ToggleRowConfig {
   title: string;
   subtitle?: string;
   icon?: string;
+  /** Row subject entity — drives icon fallback, state tinting, and unavailable styling. */
+  entity?: string;
+  /** Tint the icon by entity state. Defaults to true when `entity` is set. */
+  icon_state?: boolean;
   controls: RowControlConfig[];
 }
 

@@ -5,13 +5,16 @@ import {
   createSwitchEntity,
 } from '../fixtures/hass-base';
 import {
+  getRowIconState,
   getToggleService,
   isEntityOn,
   isEntityUnavailable,
   isRowDisabled,
   partitionControls,
+  resolveRowIcon,
+  shouldShowIconState,
 } from './helpers';
-import type { RowControlConfig } from './types';
+import type { RowControlConfig, ToggleRowConfig } from './types';
 
 const porchOn = createSwitchEntity('switch.porch', 'on', 'Porch Light');
 const porchOff = createSwitchEntity('switch.porch', 'off', 'Porch Light');
@@ -74,6 +77,57 @@ describe('partitionControls', () => {
       entity: 'switch.porch',
     };
     expect(partitionControls([control]).right).toEqual([control]);
+  });
+});
+
+describe('shouldShowIconState', () => {
+  it('is false without a row entity', () => {
+    expect(shouldShowIconState({ title: 'Test', controls: [] })).toBe(false);
+  });
+
+  it('defaults to true when a row entity is set', () => {
+    expect(
+      shouldShowIconState({ title: 'Test', entity: 'switch.porch', controls: [] }),
+    ).toBe(true);
+  });
+
+  it('respects icon_state: false', () => {
+    expect(
+      shouldShowIconState({
+        title: 'Test',
+        entity: 'switch.porch',
+        icon_state: false,
+        controls: [],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('resolveRowIcon', () => {
+  it('prefers the configured icon', () => {
+    expect(
+      resolveRowIcon({ title: 'Test', icon: 'mdi:power', controls: [] }, porchOn),
+    ).toBe('mdi:power');
+  });
+
+  it('falls back to the entity icon attribute', () => {
+    expect(
+      resolveRowIcon({ title: 'Test', entity: 'switch.porch', controls: [] }, porchOn),
+    ).toBe('mdi:lightbulb');
+  });
+});
+
+describe('getRowIconState', () => {
+  it('returns active for on entities', () => {
+    expect(getRowIconState(porchOn)).toBe('active');
+  });
+
+  it('returns inactive for off entities', () => {
+    expect(getRowIconState(porchOff)).toBe('inactive');
+  });
+
+  it('returns unavailable for missing entities', () => {
+    expect(getRowIconState(undefined)).toBe('unavailable');
   });
 });
 

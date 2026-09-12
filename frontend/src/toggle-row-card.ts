@@ -36,6 +36,7 @@ export class ToggleRowCard extends LitElement implements LovelaceCard {
       rows: [
         {
           icon: 'mdi:lightbulb',
+          entity: 'switch.porch',
           title: 'Porch Light',
           subtitle: 'On',
           controls: [
@@ -57,6 +58,7 @@ export class ToggleRowCard extends LitElement implements LovelaceCard {
         },
         {
           icon: 'mdi:account-multiple',
+          entity: 'input_boolean.guest_mode',
           title: 'Guest Mode',
           subtitle: 'Off',
           controls: [

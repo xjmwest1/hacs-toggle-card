@@ -47,7 +47,8 @@ type: module
 ## Row model
 
 - **Title / subtitle** — static text with `{{ variable }}` placeholders (no JavaScript)
-- **Icon** — static MDI icon
+- **Entity** — optional row subject; drives icon fallback, state tinting, and unavailable styling
+- **Icon** — static MDI icon, or falls back to the row entity's icon; optionally tinted by entity state (`icon_state`, default on)
 - **Controls** — left- or right-aligned sub-components:
   - **Button** — title, icon, or both; performs any HA action
   - **Toggle** — boolean value; optionally disables all row buttons when off (`disables_row`)
@@ -58,6 +59,7 @@ type: module
 type: custom:toggle-row-card
 rows:
   - icon: mdi:lightbulb
+    entity: switch.porch
     title: '{{ switch.porch.name }}'
     subtitle: '{{ switch.porch.state_label }}'
     controls:

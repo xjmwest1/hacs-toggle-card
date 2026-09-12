@@ -1,6 +1,8 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
-import type { RowAlign, RowControlConfig } from './types';
+import type { RowAlign, RowControlConfig, ToggleRowConfig } from './types';
+
+export type RowIconState = 'active' | 'inactive' | 'unavailable';
 
 const ON_STATES = new Set(['on', 'open', 'locked', 'playing', 'home', 'true']);
 
@@ -67,6 +69,40 @@ export function isRowDisabled(
     const stateObj = hass.states[control.entity];
     return stateObj ? !isEntityOn(stateObj) : false;
   });
+}
+
+export function shouldShowIconState(config: ToggleRowConfig): boolean {
+  if (!config.entity) {
+    return false;
+  }
+
+  return config.icon_state ?? true;
+}
+
+export function resolveRowIcon(
+  config: ToggleRowConfig,
+  stateObj: HassEntity | undefined,
+): string | undefined {
+  if (config.icon) {
+    return config.icon;
+  }
+
+  const entityIcon = stateObj?.attributes.icon;
+  return typeof entityIcon === 'string' && entityIcon.length > 0 ? entityIcon : undefined;
+}
+
+export function getRowIconState(
+  stateObj: HassEntity | undefined,
+): RowIconState | null {
+  if (!stateObj) {
+    return 'unavailable';
+  }
+
+  if (isEntityUnavailable(stateObj)) {
+    return 'unavailable';
+  }
+
+  return isEntityOn(stateObj) ? 'active' : 'inactive';
 }
 
 export function partitionControls(
