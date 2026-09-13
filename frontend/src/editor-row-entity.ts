@@ -85,6 +85,17 @@ function syncControlsForRowEntity(
   });
 }
 
+function shouldReplaceIconStateEntity(
+  iconStateEntity: string | undefined,
+  previousEntityId?: string,
+): boolean {
+  if (!iconStateEntity) {
+    return true;
+  }
+
+  return Boolean(previousEntityId && iconStateEntity === previousEntityId);
+}
+
 export function applyRowEntitySelection(
   row: ToggleRowConfig,
   entityId: string | undefined,
@@ -107,6 +118,10 @@ export function applyRowEntitySelection(
 
   if (shouldReplaceTitle(row.title, previousEntityId)) {
     patch.title = `{{ ${entityId}.name }}`;
+  }
+
+  if (shouldReplaceIconStateEntity(row.icon_state_entity, previousEntityId)) {
+    patch.icon_state_entity = entityId;
   }
 
   patch.controls = syncControlsForRowEntity(row.controls, entityId, previousEntityId);

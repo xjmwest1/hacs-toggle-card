@@ -11,6 +11,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:lightbulb',
       entity: 'switch.porch',
+      icon_state_entity: 'switch.porch',
       title: 'Porch Light',
       subtitle: 'On',
       controls: [
@@ -24,6 +25,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:lightbulb-outline',
       entity: 'switch.garage',
+      icon_state_entity: 'switch.garage',
       title: 'Garage Light',
       subtitle: 'Off',
       controls: [
@@ -37,6 +39,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:account-multiple',
       entity: 'input_boolean.guest_mode',
+      icon_state_entity: 'input_boolean.guest_mode',
       title: 'Guest Mode',
       subtitle: 'Off',
       controls: [

@@ -6,7 +6,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
-- Optional `icon_state_entity` row field to tint the row icon from a different entity than the row subject
+- Optional `icon_state_entity` row field — the sole source for row icon tinting (omit for no tint); auto-populated when selecting a row entity in the editor
 
 ## [0.4.0] - 2026-09-13
 

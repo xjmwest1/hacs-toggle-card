@@ -66,6 +66,7 @@ describe('applyRowEntitySelection', () => {
       ...row,
       entity: 'switch.porch',
       icon: 'mdi:lightbulb-on',
+      icon_state_entity: 'switch.porch',
       title: '{{ switch.porch.name }}',
       controls: [
         {
@@ -104,6 +105,7 @@ describe('applyRowEntitySelection', () => {
       ...row,
       entity: 'input_boolean.guest_mode',
       icon: 'mdi:account-multiple',
+      icon_state_entity: 'input_boolean.guest_mode',
       title: '{{ input_boolean.guest_mode.name }}',
       controls: [
         {
@@ -132,6 +134,7 @@ describe('applyRowEntitySelection', () => {
       ...row,
       entity: 'switch.porch',
       icon: 'mdi:power',
+      icon_state_entity: 'switch.porch',
       title: '{{ switch.porch.name }}',
       controls: row.controls,
     });
@@ -162,8 +165,26 @@ describe('applyRowEntitySelection', () => {
       ...row,
       entity: 'switch.porch',
       icon: 'mdi:lightbulb-on',
+      icon_state_entity: 'switch.porch',
       title: 'Custom title',
       controls: row.controls,
+    });
+  });
+
+  it('preserves a custom icon tint entity when the row entity changes', () => {
+    const row = createRow({
+      entity: 'switch.porch',
+      icon_state_entity: 'binary_sensor.motion',
+      controls: [],
+    });
+
+    expect(applyRowEntitySelection(row, 'input_boolean.guest_mode', mockHass, 'switch.porch')).toEqual({
+      ...row,
+      entity: 'input_boolean.guest_mode',
+      icon: 'mdi:account-multiple',
+      icon_state_entity: 'binary_sensor.motion',
+      title: '{{ input_boolean.guest_mode.name }}',
+      controls: [],
     });
   });
 });

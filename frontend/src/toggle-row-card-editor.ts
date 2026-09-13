@@ -167,37 +167,18 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
           ></editor-icon-picker>
         </label>
 
-        ${row.entity
-          ? html`
-              <label class="checkbox-field">
-                <input
-                  type="checkbox"
-                  .checked=${row.icon_state ?? true}
-                  @change=${(ev: Event) =>
-                    this._updateRow(rowIndex, {
-                      icon_state: (ev.target as HTMLInputElement).checked,
-                    })}
-                />
-                <span>Tint icon by entity state</span>
-              </label>
-              ${(row.icon_state ?? true)
-                ? html`
-                    <label class="field">
-                      <span>Icon tint entity (optional)</span>
-                      <editor-entity-picker
-                        .hass=${this.hass}
-                        .value=${row.icon_state_entity ?? ''}
-                        placeholder="Uses row entity when empty"
-                        @value-changed=${(ev: CustomEvent<{ value: string }>) =>
-                          this._updateRow(rowIndex, {
-                            icon_state_entity: ev.detail.value || undefined,
-                          })}
-                      ></editor-entity-picker>
-                    </label>
-                  `
-                : nothing}
-            `
-          : nothing}
+        <label class="field">
+          <span>Icon tint entity (optional)</span>
+          <editor-entity-picker
+            .hass=${this.hass}
+            .value=${row.icon_state_entity ?? ''}
+            placeholder="Leave empty for no icon tint"
+            @value-changed=${(ev: CustomEvent<{ value: string }>) =>
+              this._updateRow(rowIndex, {
+                icon_state_entity: ev.detail.value || undefined,
+              })}
+          ></editor-entity-picker>
+        </label>
 
         <div class="controls-section">
           <div class="section-header">

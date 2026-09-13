@@ -14,6 +14,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:lightbulb',
       entity: porchEntity,
+      icon_state_entity: porchEntity,
       title: 'Porch Light',
       subtitle: 'Automation paused while guest mode is off',
       controls: [

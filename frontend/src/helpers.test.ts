@@ -82,7 +82,7 @@ describe('partitionControls', () => {
 });
 
 describe('getIconStateEntityId', () => {
-  it('prefers icon_state_entity over the row entity', () => {
+  it('returns icon_state_entity when set', () => {
     expect(
       getIconStateEntityId({
         title: 'Test',
@@ -93,29 +93,26 @@ describe('getIconStateEntityId', () => {
     ).toBe('binary_sensor.motion');
   });
 
-  it('falls back to the row entity when no override is set', () => {
+  it('returns undefined when icon_state_entity is omitted', () => {
     expect(
       getIconStateEntityId({
         title: 'Test',
         entity: 'switch.porch',
         controls: [],
       }),
-    ).toBe('switch.porch');
+    ).toBeUndefined();
   });
 });
 
 describe('shouldShowIconState', () => {
-  it('is false without a tint entity', () => {
+  it('is false without icon_state_entity', () => {
     expect(shouldShowIconState({ title: 'Test', controls: [] })).toBe(false);
-  });
-
-  it('defaults to true when a row entity is set', () => {
     expect(
       shouldShowIconState({ title: 'Test', entity: 'switch.porch', controls: [] }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it('is true when only icon_state_entity is set', () => {
+  it('is true when icon_state_entity is set', () => {
     expect(
       shouldShowIconState({
         title: 'Test',
@@ -123,17 +120,6 @@ describe('shouldShowIconState', () => {
         controls: [],
       }),
     ).toBe(true);
-  });
-
-  it('respects icon_state: false', () => {
-    expect(
-      shouldShowIconState({
-        title: 'Test',
-        entity: 'switch.porch',
-        icon_state: false,
-        controls: [],
-      }),
-    ).toBe(false);
   });
 });
 

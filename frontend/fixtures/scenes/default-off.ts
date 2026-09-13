@@ -9,6 +9,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:lightbulb',
       entity: entityId,
+      icon_state_entity: entityId,
       title: '{{ switch.porch.name }}',
       subtitle: '{{ switch.porch.state_label }}',
       controls: [

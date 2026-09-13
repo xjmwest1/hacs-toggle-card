@@ -9,6 +9,7 @@ export const config: ToggleRowCardConfig = {
     {
       icon: 'mdi:account-multiple',
       entity: entityId,
+      icon_state_entity: entityId,
       title: 'Guest Mode',
       subtitle: 'Disable automations while guests are home',
       controls: [
