@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-13
+
+### Added
+
+- Two-stage template autocomplete for title/subtitle: entity fields first, then date/datetime/relative formatting options for timestamp fields
+- Expanded MDI icon path map (`@mdi/js`) for editor previews and card rendering
+
+### Fixed
+
+- Button icon picker no longer commits partial icon names on every keystroke (commits on selection or blur)
+- Custom row icons are preserved when changing the row entity (unless the icon came from the previous entity)
+- `ha-icon-picker` bridge no longer double-fires `value-changed` events
+
+### Changed
+
+- Title/subtitle help text simplified to “Type {{ for template suggestions.”
+
 ## [0.3.0] - 2026-09-12
 
 ### Added
