@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing, type TemplateResult } from 'lit';
+import { css, html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { getMdiPath } from '../helpers';
 import { COMMON_EDITOR_ICONS } from './common-icons';
@@ -10,6 +10,15 @@ function filterIcons(icons: readonly string[], filter: string): string[] {
   }
 
   return icons.filter((icon) => icon.toLowerCase().includes(normalized));
+}
+
+function normalizeCustomIcon(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  return trimmed.startsWith('mdi:') ? trimmed : `mdi:${trimmed}`;
 }
 
 @customElement('editor-icon-picker')
@@ -40,13 +49,19 @@ export class EditorIconPicker extends LitElement {
     const source = this._open ? this._filter : this.value;
     const filtered = filterIcons(this._icons, source);
     if (this.allowCustomValue && source.trim() && !filtered.includes(source.trim())) {
-      const custom = source.trim().startsWith('mdi:') ? source.trim() : `mdi:${source.trim()}`;
+      const custom = normalizeCustomIcon(source);
       return [custom, ...filtered];
     }
     return filtered;
   }
 
   @property({ type: Boolean }) public allowCustomValue = true;
+
+  protected updated(changed: PropertyValues): void {
+    if (changed.has('value') && !this._open) {
+      this._filter = this.value;
+    }
+  }
 
   protected render(): TemplateResult {
     if (this._usesHaPicker) {
@@ -60,15 +75,16 @@ export class EditorIconPicker extends LitElement {
 
     const icons = this._filteredIcons;
     const showDropdown = this._open && icons.length > 0;
+    const previewIcon = this._open ? normalizeCustomIcon(this._filter) || this.value : this.value;
 
     return html`
       <div class="icon-picker">
         <div class="input-row">
-          ${this.value
+          ${previewIcon
             ? html`
                 <span class="selected-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24">
-                    <path d=${getMdiPath(this.value)}></path>
+                    <path d=${getMdiPath(previewIcon)}></path>
                   </svg>
                 </span>
               `
@@ -116,6 +132,7 @@ export class EditorIconPicker extends LitElement {
   }
 
   private _onHaValueChanged(ev: CustomEvent<{ value: string }>): void {
+    ev.stopPropagation();
     this._emitValueChanged(ev.detail.value ?? '');
   }
 
@@ -130,10 +147,6 @@ export class EditorIconPicker extends LitElement {
     this._filter = value;
     this._highlightedIndex = 0;
     this._open = true;
-
-    if (this.allowCustomValue) {
-      this._emitValueChanged(value);
-    }
   }
 
   private _onKeyDown(ev: KeyboardEvent): void {
@@ -169,6 +182,15 @@ export class EditorIconPicker extends LitElement {
 
   private _onBlur(): void {
     requestAnimationFrame(() => {
+      const pending = this._filter.trim();
+
+      if (this.allowCustomValue && pending && pending !== this.value) {
+        const normalized = normalizeCustomIcon(pending);
+        if (normalized !== this.value) {
+          this._emitValueChanged(normalized);
+        }
+      }
+
       this._open = false;
       this._filter = this.value;
     });

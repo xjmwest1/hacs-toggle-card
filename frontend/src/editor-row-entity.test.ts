@@ -114,6 +114,28 @@ describe('applyRowEntitySelection', () => {
     });
   });
 
+  it('preserves a custom row icon when the entity changes', () => {
+    const row = createRow({
+      icon: 'mdi:power',
+      controls: [
+        {
+          type: 'button',
+          align: 'left',
+          icon: 'mdi:information-outline',
+          tap_action: { action: 'none' },
+        },
+      ],
+    });
+
+    expect(applyRowEntitySelection(row, 'switch.porch', mockHass)).toEqual({
+      ...row,
+      entity: 'switch.porch',
+      icon: 'mdi:power',
+      title: '{{ switch.porch.name }}',
+      controls: row.controls,
+    });
+  });
+
   it('preserves custom titles and unrelated control entities', () => {
     const row = createRow({
       title: 'Custom title',
