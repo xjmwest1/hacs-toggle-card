@@ -3,10 +3,30 @@ import type { RowButtonConfig, RowControlConfig, ToggleRowConfig } from './types
 
 const PLACEHOLDER_ENTITY = 'switch.example';
 const DEFAULT_ROW_TITLE = 'New row';
+const DEFAULT_ROW_ICON = 'mdi:toggle-switch';
 
 function getEntityIcon(hass: HomeAssistant | undefined, entityId: string): string | undefined {
   const icon = hass?.states[entityId]?.attributes?.icon;
   return typeof icon === 'string' && icon.length > 0 ? icon : undefined;
+}
+
+function shouldReplaceRowIcon(
+  rowIcon: string | undefined,
+  previousEntityId: string | undefined,
+  hass: HomeAssistant | undefined,
+): boolean {
+  if (!rowIcon || rowIcon === DEFAULT_ROW_ICON) {
+    return true;
+  }
+
+  if (previousEntityId) {
+    const previousEntityIcon = getEntityIcon(hass, previousEntityId);
+    if (previousEntityIcon && rowIcon === previousEntityIcon) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function shouldReplaceTitle(title: string, previousEntityId?: string): boolean {
@@ -81,7 +101,7 @@ export function applyRowEntitySelection(
   };
 
   const entityIcon = getEntityIcon(hass, entityId);
-  if (entityIcon) {
+  if (entityIcon && shouldReplaceRowIcon(row.icon, previousEntityId, hass)) {
     patch.icon = entityIcon;
   }
 
