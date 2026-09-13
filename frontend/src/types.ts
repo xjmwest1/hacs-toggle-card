@@ -7,6 +7,8 @@ export interface RowButtonConfig {
   align: RowAlign;
   title?: string;
   icon?: string;
+  /** When true, show a confirmation dialog before running the tap action. */
+  confirmation?: boolean;
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;

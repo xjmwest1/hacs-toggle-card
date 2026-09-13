@@ -248,6 +248,64 @@ export const buttonStyles: CSSResultGroup = [
       height: 100%;
       fill: currentColor;
     }
+
+    .row-button-host {
+      display: inline-flex;
+      position: relative;
+    }
+
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .confirm-dialog {
+      width: min(100%, 360px);
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--card-background-color, #fff);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+    }
+
+    .confirm-title {
+      margin-bottom: 16px;
+      color: var(--toggle-row-primary-text);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .confirm-button {
+      min-width: 88px;
+      padding: 8px 14px;
+      border: 1px solid var(--toggle-row-divider);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--toggle-row-primary-text);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .confirm-button--primary {
+      border-color: var(--toggle-row-accent);
+      background: var(--toggle-row-accent);
+      color: var(--text-primary-color, #fff);
+    }
+
+    .confirm-button:hover {
+      filter: brightness(0.96);
+    }
   `,
 ];
 

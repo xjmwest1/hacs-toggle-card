@@ -442,6 +442,21 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             </label>
           `
         : nothing}
+      ${getButtonTapActionType(control.tap_action) !== 'none'
+        ? html`
+            <label class="checkbox-field">
+              <input
+                type="checkbox"
+                .checked=${control.confirmation ?? false}
+                @change=${(ev: Event) =>
+                  this._updateControl(rowIndex, controlIndex, {
+                    confirmation: (ev.target as HTMLInputElement).checked || undefined,
+                  })}
+              />
+              <span>Require confirmation</span>
+            </label>
+          `
+        : nothing}
     `;
   }
 
