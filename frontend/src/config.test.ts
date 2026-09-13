@@ -166,6 +166,22 @@ describe('normalizeCardConfig', () => {
     expect(normalized.rows[0].subtitle).toBe('On');
   });
 
+  it('trims icon_state_entity values', () => {
+    const normalized = normalizeCardConfig({
+      type: 'custom:toggle-row-card',
+      rows: [
+        {
+          title: 'Porch Light',
+          entity: 'switch.porch',
+          icon_state_entity: '  binary_sensor.motion  ',
+          controls: [{ type: 'toggle', align: 'right', entity: 'switch.porch' }],
+        },
+      ],
+    });
+
+    expect(normalized.rows[0].icon_state_entity).toBe('binary_sensor.motion');
+  });
+
   it('drops blank subtitles', () => {
     const normalized = normalizeCardConfig({
       type: 'custom:toggle-row-card',

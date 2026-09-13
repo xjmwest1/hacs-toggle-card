@@ -5,6 +5,7 @@ import {
   createSwitchEntity,
 } from '../fixtures/hass-base';
 import {
+  getIconStateEntityId,
   getRowIconState,
   getToggleService,
   isEntityOn,
@@ -80,14 +81,47 @@ describe('partitionControls', () => {
   });
 });
 
+describe('getIconStateEntityId', () => {
+  it('prefers icon_state_entity over the row entity', () => {
+    expect(
+      getIconStateEntityId({
+        title: 'Test',
+        entity: 'switch.porch',
+        icon_state_entity: 'binary_sensor.motion',
+        controls: [],
+      }),
+    ).toBe('binary_sensor.motion');
+  });
+
+  it('falls back to the row entity when no override is set', () => {
+    expect(
+      getIconStateEntityId({
+        title: 'Test',
+        entity: 'switch.porch',
+        controls: [],
+      }),
+    ).toBe('switch.porch');
+  });
+});
+
 describe('shouldShowIconState', () => {
-  it('is false without a row entity', () => {
+  it('is false without a tint entity', () => {
     expect(shouldShowIconState({ title: 'Test', controls: [] })).toBe(false);
   });
 
   it('defaults to true when a row entity is set', () => {
     expect(
       shouldShowIconState({ title: 'Test', entity: 'switch.porch', controls: [] }),
+    ).toBe(true);
+  });
+
+  it('is true when only icon_state_entity is set', () => {
+    expect(
+      shouldShowIconState({
+        title: 'Test',
+        icon_state_entity: 'binary_sensor.motion',
+        controls: [],
+      }),
     ).toBe(true);
   });
 

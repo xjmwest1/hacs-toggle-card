@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import './row-button';
 import './row-toggle';
 import {
+  getIconStateEntityId,
   getMdiPath,
   getRowIconState,
   isEntityUnavailable,
@@ -40,8 +41,12 @@ export class ToggleRow extends LitElement {
     const rowDisabled = isRowDisabled(this.config.controls ?? [], this.hass);
     const { left, right } = partitionControls(this.config.controls ?? []);
     const icon = resolveRowIcon(this.config, contextEntity);
+    const iconStateEntityId = getIconStateEntityId(this.config);
+    const iconStateEntity = iconStateEntityId
+      ? this.hass?.states[iconStateEntityId]
+      : undefined;
     const iconState =
-      shouldShowIconState(this.config) ? getRowIconState(contextEntity) : null;
+      shouldShowIconState(this.config) ? getRowIconState(iconStateEntity) : null;
 
     return html`
       <div class="toggle-row ${rowDisabled ? 'toggle-row--disabled' : ''}">

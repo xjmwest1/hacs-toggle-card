@@ -92,7 +92,7 @@ export function applyRowEntitySelection(
   previousEntityId?: string,
 ): ToggleRowConfig {
   if (!entityId) {
-    return { ...row, entity: undefined };
+    return { ...row, entity: undefined, icon_state_entity: undefined };
   }
 
   const patch: ToggleRowConfig = {

@@ -50,11 +50,12 @@ function createRow(overrides: Partial<ToggleRowConfig> = {}): ToggleRowConfig {
 
 describe('applyRowEntitySelection', () => {
   it('clears the row entity when no entity is selected', () => {
-    const row = createRow({ entity: 'switch.porch' });
+    const row = createRow({ entity: 'switch.porch', icon_state_entity: 'binary_sensor.motion' });
 
     expect(applyRowEntitySelection(row, undefined, mockHass, 'switch.porch')).toEqual({
       ...row,
       entity: undefined,
+      icon_state_entity: undefined,
     });
   });
 

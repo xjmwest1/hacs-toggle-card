@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Optional `icon_state_entity` row field to tint the row icon from a different entity than the row subject
+
 ## [0.4.0] - 2026-09-13
 
 ### Added

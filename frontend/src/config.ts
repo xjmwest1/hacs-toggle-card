@@ -64,6 +64,7 @@ export function normalizeCardConfig(config: ToggleRowCardConfig): ToggleRowCardC
       ...row,
       title: row.title.trim(),
       subtitle: row.subtitle?.trim() || undefined,
+      icon_state_entity: row.icon_state_entity?.trim() || undefined,
       controls: (row.controls ?? []).map((control) => ({ ...control })),
     })),
   };

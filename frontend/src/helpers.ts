@@ -71,12 +71,21 @@ export function isRowDisabled(
   });
 }
 
+export function getIconStateEntityId(config: ToggleRowConfig): string | undefined {
+  const override = config.icon_state_entity?.trim();
+  if (override) {
+    return override;
+  }
+
+  return config.entity;
+}
+
 export function shouldShowIconState(config: ToggleRowConfig): boolean {
-  if (!config.entity) {
+  if (config.icon_state === false) {
     return false;
   }
 
-  return config.icon_state ?? true;
+  return Boolean(getIconStateEntityId(config));
 }
 
 export function resolveRowIcon(
