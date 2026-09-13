@@ -2,13 +2,19 @@ import { css, html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import {
   formatVariableSnippet,
+  getTemplateFormatOptions,
   insertTemplateVariable,
+  tokenSupportsFormatting,
+  type TemplateFormatOption,
   type TemplateVariable,
 } from '../template-variables';
 import {
-  applyTemplateSuggestion,
+  applyTemplateFormatSuggestion,
+  applyTemplateVariableSuggestion,
+  filterTemplateFormatOptions,
   filterTemplateVariables,
   getTemplateAutocompleteContext,
+  type TemplateAutocompleteContext,
 } from './template-autocomplete';
 
 @customElement('editor-template-input')
@@ -23,7 +29,7 @@ export class EditorTemplateInput extends LitElement {
 
   @state() private _open = false;
 
-  @state() private _context = getTemplateAutocompleteContext('', 0);
+  @state() private _context: TemplateAutocompleteContext = getTemplateAutocompleteContext('', 0);
 
   protected updated(changed: Map<string, unknown>): void {
     if (changed.has('value') && !this._open) {
@@ -35,16 +41,30 @@ export class EditorTemplateInput extends LitElement {
     return this.renderRoot.querySelector('input');
   }
 
-  private get _suggestions(): TemplateVariable[] {
-    if (!this._context.active) {
+  private get _variableSuggestions(): TemplateVariable[] {
+    if (!this._context.active || this._context.mode !== 'variable') {
       return [];
     }
 
     return filterTemplateVariables(this.variables, this._context.filter);
   }
 
+  private get _formatSuggestions(): TemplateFormatOption[] {
+    if (!this._context.active || this._context.mode !== 'format' || !this._context.token) {
+      return [];
+    }
+
+    return filterTemplateFormatOptions(getTemplateFormatOptions(), this._context.filter);
+  }
+
+  private get _suggestionCount(): number {
+    return this._context.mode === 'format'
+      ? this._formatSuggestions.length
+      : this._variableSuggestions.length;
+  }
+
   protected render(): TemplateResult {
-    const suggestions = this._suggestions;
+    const suggestions = this._context.mode === 'format' ? this._formatSuggestions : this._variableSuggestions;
     const showSuggestions = this._open && this._context.active && suggestions.length > 0;
 
     return html`
@@ -62,9 +82,19 @@ export class EditorTemplateInput extends LitElement {
         ${showSuggestions
           ? html`
               <ul class="suggestions" role="listbox">
-                ${suggestions.map((variable, index) =>
-                  this._renderSuggestion(variable, index === this._highlightedIndex),
-                )}
+                ${this._context.mode === 'format'
+                  ? suggestions.map((option, index) =>
+                      this._renderFormatSuggestion(
+                        option as TemplateFormatOption,
+                        index === this._highlightedIndex,
+                      ),
+                    )
+                  : suggestions.map((variable, index) =>
+                      this._renderVariableSuggestion(
+                        variable as TemplateVariable,
+                        index === this._highlightedIndex,
+                      ),
+                    )}
               </ul>
             `
           : nothing}
@@ -72,7 +102,7 @@ export class EditorTemplateInput extends LitElement {
     `;
   }
 
-  private _renderSuggestion(variable: TemplateVariable, highlighted: boolean): TemplateResult {
+  private _renderVariableSuggestion(variable: TemplateVariable, highlighted: boolean): TemplateResult {
     return html`
       <li>
         <button
@@ -80,10 +110,29 @@ export class EditorTemplateInput extends LitElement {
           class="suggestion ${highlighted ? 'highlighted' : ''}"
           role="option"
           aria-selected=${highlighted}
-          @mousedown=${(ev: Event) => this._selectSuggestion(variable, ev)}
+          @mousedown=${(ev: Event) => this._selectVariable(variable, ev)}
         >
           <span class="suggestion-token">${formatVariableSnippet(variable.token)}</span>
           <span class="suggestion-label">${variable.label}</span>
+        </button>
+      </li>
+    `;
+  }
+
+  private _renderFormatSuggestion(option: TemplateFormatOption, highlighted: boolean): TemplateResult {
+    const token = this._context.token ?? '';
+
+    return html`
+      <li>
+        <button
+          type="button"
+          class="suggestion ${highlighted ? 'highlighted' : ''}"
+          role="option"
+          aria-selected=${highlighted}
+          @mousedown=${(ev: Event) => this._selectFormat(option, ev)}
+        >
+          <span class="suggestion-token">${formatVariableSnippet(token, option.format)}</span>
+          <span class="suggestion-label">${option.label}</span>
         </button>
       </li>
     `;
@@ -109,28 +158,31 @@ export class EditorTemplateInput extends LitElement {
   }
 
   private _onKeyDown(ev: KeyboardEvent): void {
-    const suggestions = this._suggestions;
+    const count = this._suggestionCount;
 
-    if (!this._open || !this._context.active || suggestions.length === 0) {
+    if (!this._open || !this._context.active || count === 0) {
       return;
     }
 
     if (ev.key === 'ArrowDown') {
       ev.preventDefault();
-      this._highlightedIndex = (this._highlightedIndex + 1) % suggestions.length;
+      this._highlightedIndex = (this._highlightedIndex + 1) % count;
       return;
     }
 
     if (ev.key === 'ArrowUp') {
       ev.preventDefault();
-      this._highlightedIndex =
-        (this._highlightedIndex - 1 + suggestions.length) % suggestions.length;
+      this._highlightedIndex = (this._highlightedIndex - 1 + count) % count;
       return;
     }
 
     if (ev.key === 'Enter' || ev.key === 'Tab') {
       ev.preventDefault();
-      this._applySuggestion(suggestions[this._highlightedIndex]);
+      if (this._context.mode === 'format') {
+        this._applyFormat(this._formatSuggestions[this._highlightedIndex]);
+      } else {
+        this._applyVariable(this._variableSuggestions[this._highlightedIndex]);
+      }
       return;
     }
 
@@ -146,18 +198,57 @@ export class EditorTemplateInput extends LitElement {
     });
   }
 
-  private _selectSuggestion(variable: TemplateVariable, ev: Event): void {
+  private _selectVariable(variable: TemplateVariable, ev: Event): void {
     ev.preventDefault();
-    this._applySuggestion(variable);
+    this._applyVariable(variable);
   }
 
-  private _applySuggestion(variable: TemplateVariable): void {
+  private _selectFormat(option: TemplateFormatOption, ev: Event): void {
+    ev.preventDefault();
+    this._applyFormat(option);
+  }
+
+  private _applyVariable(variable: TemplateVariable): void {
     const input = this._input;
     const cursor = input?.selectionStart ?? this.value.length;
-    const { value, cursor: nextCursor } = applyTemplateSuggestion(
+    const { value, cursor: nextCursor, openFormatSuggestions } = applyTemplateVariableSuggestion(
       this.value,
       cursor,
       variable.token,
+      this._context,
+      tokenSupportsFormatting(variable.token),
+    );
+
+    this._emitValueChanged(value);
+
+    if (input) {
+      requestAnimationFrame(() => {
+        input.focus();
+        input.setSelectionRange(nextCursor, nextCursor);
+        this._context = getTemplateAutocompleteContext(value, nextCursor);
+        this._highlightedIndex = 0;
+        this._open = openFormatSuggestions && this._context.active;
+      });
+      return;
+    }
+
+    this._open = openFormatSuggestions;
+  }
+
+  private _applyFormat(option: TemplateFormatOption): void {
+    const input = this._input;
+    const cursor = input?.selectionStart ?? this.value.length;
+    const token = this._context.token;
+
+    if (!token) {
+      return;
+    }
+
+    const { value, cursor: nextCursor } = applyTemplateFormatSuggestion(
+      this.value,
+      cursor,
+      token,
+      option.format,
       this._context,
     );
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { getRowEntitySources, getTemplateVariables } from './template-variables';
+import {
+  getRowEntitySources,
+  getTemplateFormatOptions,
+  getTemplateVariables,
+  tokenSupportsFormatting,
+} from './template-variables';
 import type { ToggleRowConfig } from './types';
 
 const baseRow: ToggleRowConfig = {
@@ -38,11 +43,25 @@ describe('getTemplateVariables', () => {
     });
 
     expect(variables.some((variable) => variable.token === 'switch.porch.name')).toBe(true);
-    expect(
-      variables.some(
-        (variable) =>
-          variable.token === 'switch.porch.last_changed' && variable.format === 'datetime:short',
-      ),
-    ).toBe(true);
+    expect(variables.some((variable) => variable.token === 'switch.porch.last_changed')).toBe(true);
+    expect(variables.some((variable) => variable.token === 'switch.porch.last_updated')).toBe(true);
+  });
+});
+
+describe('getTemplateFormatOptions', () => {
+  it('includes common date and relative formats', () => {
+    const formats = getTemplateFormatOptions().map((option) => option.format);
+
+    expect(formats).toContain('date');
+    expect(formats).toContain('datetime:short');
+    expect(formats).toContain('relative:short');
+  });
+});
+
+describe('tokenSupportsFormatting', () => {
+  it('supports timestamp tokens only', () => {
+    expect(tokenSupportsFormatting('switch.porch.last_changed')).toBe(true);
+    expect(tokenSupportsFormatting('switch.porch.last_updated')).toBe(true);
+    expect(tokenSupportsFormatting('switch.porch.name')).toBe(false);
   });
 });

@@ -230,10 +230,7 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             this._updateTemplateField(rowIndex, field, ev)}
         ></editor-template-input>
         <div class="template-help">
-          Type <code>{{</code> for template suggestions. Format dates with
-          <code>{{ switch.porch.last_changed | date }}</code>,
-          <code>{{ sensor.event.attr.start | datetime:short }}</code>, or relative values like
-          <code>{{ switch.porch.last_updated | relative }}</code>.
+          Type <code>{{</code> for template suggestions.
           ${hasEntitySources ? nothing : html`<span> Set a row entity for suggestions.</span>`}
         </div>
       </label>
