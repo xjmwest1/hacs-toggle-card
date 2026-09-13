@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-13
+
 ### Added
 
 - Optional `icon_state_entity` row field — the sole source for row icon tinting (omit for no tint); auto-populated when selecting a row entity in the editor
