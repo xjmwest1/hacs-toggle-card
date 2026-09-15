@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-09-15
+
 ### Added
 
 - Optional `icon_state_invert` row field and editor checkbox to highlight the icon when the tint entity is off instead of on

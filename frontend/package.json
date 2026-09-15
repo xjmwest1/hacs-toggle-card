@@ -1,6 +1,6 @@
 {
   "name": "toggle-row-card",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "type": "module",
   "description": "Home Assistant Lovelace toggle-row card",
