@@ -45,12 +45,12 @@ export class ToggleRow extends LitElement {
     const iconStateEntity = iconStateEntityId
       ? this.hass?.states[iconStateEntityId]
       : undefined;
-    const iconState =
-      shouldShowIconState(this.config) ? getRowIconState(iconStateEntity) : null;
+    const stateTint = shouldShowIconState(this.config);
+    const iconState = stateTint ? getRowIconState(iconStateEntity) : null;
 
     return html`
       <div class="toggle-row ${rowDisabled ? 'toggle-row--disabled' : ''}">
-        ${icon ? this._renderIcon(icon, iconState) : ''}
+        ${icon ? this._renderIcon(icon, iconState, stateTint) : ''}
         <div class="row-text">
           <div class="row-title ${unavailable ? 'row-title--unavailable' : ''}">
             ${titleResult.value}
@@ -91,11 +91,13 @@ export class ToggleRow extends LitElement {
   private _renderIcon(
     icon: string,
     iconState: ReturnType<typeof getRowIconState>,
+    stateTint: boolean,
   ): TemplateResult {
     const stateClass = iconState ? `row-icon--${iconState}` : '';
+    const tintClass = stateTint ? 'row-icon--state-tint' : '';
 
     return html`
-      <div class="row-icon ${stateClass}" aria-hidden="true">
+      <div class="row-icon ${tintClass} ${stateClass}" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path d=${getMdiPath(icon)}></path>
         </svg>
