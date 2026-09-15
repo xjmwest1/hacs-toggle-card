@@ -46,7 +46,9 @@ export class ToggleRow extends LitElement {
       ? this.hass?.states[iconStateEntityId]
       : undefined;
     const stateTint = shouldShowIconState(this.config);
-    const iconState = stateTint ? getRowIconState(iconStateEntity) : null;
+    const iconState = stateTint
+      ? getRowIconState(iconStateEntity, this.config.icon_state_invert ?? false)
+      : null;
 
     return html`
       <div class="toggle-row ${rowDisabled ? 'toggle-row--disabled' : ''}">

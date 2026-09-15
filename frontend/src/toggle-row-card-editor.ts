@@ -176,9 +176,27 @@ export class ToggleRowCardEditor extends LitElement implements LovelaceCardEdito
             @value-changed=${(ev: CustomEvent<{ value: string }>) =>
               this._updateRow(rowIndex, {
                 icon_state_entity: ev.detail.value || undefined,
+                ...(ev.detail.value ? {} : { icon_state_invert: undefined }),
               })}
           ></editor-entity-picker>
         </label>
+
+        ${row.icon_state !== false && (row.icon_state_entity || row.entity)
+          ? html`
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  .checked=${row.icon_state_invert ?? false}
+                  @change=${(ev: Event) =>
+                    this._updateRow(rowIndex, {
+                      icon_state_invert:
+                        (ev.target as HTMLInputElement).checked || undefined,
+                    })}
+                />
+                <span>Invert tint (highlight when off)</span>
+              </label>
+            `
+          : nothing}
 
         <div class="controls-section">
           <div class="section-header">

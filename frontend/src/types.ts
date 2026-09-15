@@ -31,6 +31,8 @@ export interface ToggleRowConfig {
   entity?: string;
   /** Entity that drives row icon state tinting. Omit for no tint. */
   icon_state_entity?: string;
+  /** When true, highlight the icon when the tint entity is off instead of on. */
+  icon_state_invert?: boolean;
   /** @deprecated Ignored — use `icon_state_entity` instead. */
   icon_state?: boolean;
   controls: RowControlConfig[];
