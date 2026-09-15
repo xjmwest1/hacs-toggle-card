@@ -106,6 +106,7 @@ export function resolveRowIcon(
 
 export function getRowIconState(
   stateObj: HassEntity | undefined,
+  invert = false,
 ): RowIconState | null {
   if (!stateObj) {
     return 'unavailable';
@@ -115,7 +116,12 @@ export function getRowIconState(
     return 'unavailable';
   }
 
-  return isEntityOn(stateObj) ? 'active' : 'inactive';
+  const state = isEntityOn(stateObj) ? 'active' : 'inactive';
+  if (!invert) {
+    return state;
+  }
+
+  return state === 'active' ? 'inactive' : 'active';
 }
 
 export function partitionControls(

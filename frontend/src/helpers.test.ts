@@ -174,6 +174,18 @@ describe('getRowIconState', () => {
   it('returns unavailable for missing entities', () => {
     expect(getRowIconState(undefined)).toBe('unavailable');
   });
+
+  it('inverts active and inactive states when requested', () => {
+    expect(getRowIconState(porchOn, true)).toBe('inactive');
+    expect(getRowIconState(porchOff, true)).toBe('active');
+  });
+
+  it('keeps unavailable when inverted', () => {
+    expect(getRowIconState(undefined, true)).toBe('unavailable');
+    expect(getRowIconState(createSwitchEntity('switch.porch', 'unavailable'), true)).toBe(
+      'unavailable',
+    );
+  });
 });
 
 describe('isRowDisabled', () => {

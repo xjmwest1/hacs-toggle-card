@@ -107,4 +107,48 @@ describe('toggle-row icon tint', () => {
     expect(icon?.classList.contains('row-icon--state-tint')).toBe(false);
     expect(icon?.classList.contains('row-icon--active')).toBe(false);
   });
+
+  it('highlights the icon when invert is enabled and the tint entity is off', async () => {
+    const entityId = 'switch.porch';
+    const row = createRow(
+      {
+        title: 'Porch Light',
+        icon: 'mdi:lightbulb',
+        entity: entityId,
+        icon_state_entity: entityId,
+        icon_state_invert: true,
+        controls: [],
+      },
+      createMockHass({
+        [entityId]: createSwitchEntity(entityId, 'off', 'Porch Light'),
+      }) as unknown as HomeAssistant,
+    );
+    await row.updateComplete;
+
+    const icon = row.shadowRoot?.querySelector('.row-icon');
+    expect(icon?.classList.contains('row-icon--active')).toBe(true);
+    expect(icon?.classList.contains('row-icon--inactive')).toBe(false);
+  });
+
+  it('dims the icon when invert is enabled and the tint entity is on', async () => {
+    const entityId = 'switch.porch';
+    const row = createRow(
+      {
+        title: 'Porch Light',
+        icon: 'mdi:lightbulb',
+        entity: entityId,
+        icon_state_entity: entityId,
+        icon_state_invert: true,
+        controls: [],
+      },
+      createMockHass({
+        [entityId]: createSwitchEntity(entityId, 'on', 'Porch Light'),
+      }) as unknown as HomeAssistant,
+    );
+    await row.updateComplete;
+
+    const icon = row.shadowRoot?.querySelector('.row-icon');
+    expect(icon?.classList.contains('row-icon--inactive')).toBe(true);
+    expect(icon?.classList.contains('row-icon--active')).toBe(false);
+  });
 });

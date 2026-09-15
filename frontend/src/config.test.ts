@@ -182,6 +182,38 @@ describe('normalizeCardConfig', () => {
     expect(normalized.rows[0].icon_state_entity).toBe('binary_sensor.motion');
   });
 
+  it('drops false icon_state_invert values', () => {
+    const normalized = normalizeCardConfig({
+      type: 'custom:toggle-row-card',
+      rows: [
+        {
+          title: 'Porch Light',
+          entity: 'switch.porch',
+          icon_state_invert: false,
+          controls: [{ type: 'toggle', align: 'right', entity: 'switch.porch' }],
+        },
+      ],
+    });
+
+    expect(normalized.rows[0].icon_state_invert).toBeUndefined();
+  });
+
+  it('preserves icon_state_invert when true', () => {
+    const normalized = normalizeCardConfig({
+      type: 'custom:toggle-row-card',
+      rows: [
+        {
+          title: 'Porch Light',
+          entity: 'switch.porch',
+          icon_state_invert: true,
+          controls: [{ type: 'toggle', align: 'right', entity: 'switch.porch' }],
+        },
+      ],
+    });
+
+    expect(normalized.rows[0].icon_state_invert).toBe(true);
+  });
+
   it('drops blank subtitles', () => {
     const normalized = normalizeCardConfig({
       type: 'custom:toggle-row-card',
