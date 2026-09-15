@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Row icon tint now highlights with the accent color when the tint entity is on, instead of inheriting HA's neutral `--state-icon-color`
+- Icon tinting falls back to the row entity when `icon_state_entity` is omitted (unless `icon_state: false`)
+
 ## [0.5.0] - 2026-09-13
 
 ### Added

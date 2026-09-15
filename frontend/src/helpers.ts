@@ -72,10 +72,23 @@ export function isRowDisabled(
 }
 
 export function getIconStateEntityId(config: ToggleRowConfig): string | undefined {
-  return config.icon_state_entity?.trim() || undefined;
+  const override = config.icon_state_entity?.trim();
+  if (override) {
+    return override;
+  }
+
+  if (config.icon_state === false) {
+    return undefined;
+  }
+
+  return config.entity?.trim() || undefined;
 }
 
 export function shouldShowIconState(config: ToggleRowConfig): boolean {
+  if (config.icon_state === false) {
+    return false;
+  }
+
   return Boolean(getIconStateEntityId(config));
 }
 

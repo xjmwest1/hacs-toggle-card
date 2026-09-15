@@ -128,22 +128,22 @@ export const rowStyles: CSSResultGroup = [
       color: var(--toggle-row-accent);
     }
 
-    .row-icon--active {
-      color: var(--state-icon-color, var(--toggle-row-accent));
-    }
-
-    .row-icon--inactive {
+    .row-icon--state-tint:not(.row-icon--active) {
       color: var(
         --state-inactive-icon-color,
         var(--disabled-text-color, var(--toggle-row-secondary-text))
       );
     }
 
-    .row-icon--unavailable {
+    .row-icon--state-tint.row-icon--unavailable {
       color: var(
         --state-unavailable-color,
         var(--disabled-text-color, var(--toggle-row-secondary-text))
       );
+    }
+
+    .row-icon--state-tint.row-icon--active {
+      color: var(--toggle-row-accent);
     }
 
     .row-icon svg {
